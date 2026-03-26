@@ -1,0 +1,18 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+
+class Cidade extends Model
+{
+    protected $table = 'cidade';
+
+    protected $primaryKey = 'idCidade';
+
+    protected $fillable = [
+        'nomeCidade',
+        'ufCidade',
+    ];
+}
