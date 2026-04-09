@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Organizadora extends Model
+class Organizadora extends Authenticatable
 {
     protected $table = 'organizadora';
 
@@ -27,13 +27,24 @@ class Organizadora extends Model
         'senhaOrg',
     ];
 
-    // Relacionamento com Cidade
+    // 👇 ESSENCIAL pro login funcionar
+    public function getAuthPassword()
+    {
+        return $this->senhaOrg;
+    }
+
+    public function getAuthIdentifierName()
+    {
+        return 'emailOrg';
+    }
+
+    // Relacionamento
     public function cidade(): BelongsTo
     {
         return $this->belongsTo(Cidade::class, 'idCidade');
     }
 
-    // Hash automático da senha
+    // Hash automático
     public function setSenhaOrgAttribute($value)
     {
         $this->attributes['senhaOrg'] = Hash::make($value);

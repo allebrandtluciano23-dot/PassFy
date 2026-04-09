@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Organizadora;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class OrganizadoraController extends Controller
 {
@@ -30,7 +31,18 @@ class OrganizadoraController extends Controller
     {
         //
     }
+    
+    public function login(Request $request)
+    {
+    if (Auth::guard('organizadora')->attempt([
+        'emailOrg' => $request->email,
+        'password' => $request->password
+    ])) {
+        return 'Organizadora logada';
+    }
 
+    return 'Erro login organizadora';
+    }
     /**
      * Display the specified resource.
      */

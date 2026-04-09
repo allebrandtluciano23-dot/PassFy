@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Usuario;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class UsuarioController extends Controller
 {
@@ -29,8 +30,19 @@ class UsuarioController extends Controller
     public function store(Request $request)
     {
         //
+    }   
+    
+    public function login(Request $request)
+    {
+    if (Auth::guard('web')->attempt([
+        'emailUsuario' => $request->email,
+        'password' => $request->password
+    ])) {
+        return 'Admin logado';
     }
 
+    return 'Erro login admin';
+    }
     /**
      * Display the specified resource.
      */
