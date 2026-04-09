@@ -1,0 +1,318 @@
+body, h3{
+    margin: 0;
+    padding: 0;
+	font-family: "Inter", sans-serif;
+}
+
+/*-----HEADER-----*/
+
+header {
+	width: 100%;
+	display: flex;
+	align-items: center;
+	margin-left: auto;
+	height: 120px;
+	overflow: hidden;
+	background-color: #3C3C3C;
+	box-shadow: 0 1px 0 #3c3c3c;
+}
+
+header .logo-header{
+	width: 156px;
+	height: auto;
+}
+
+header .menu-header{
+	display: flex;
+	align-items: center;
+	margin-left: auto;
+	margin-right: 50px;
+	gap: 30px;
+	flex-wrap: wrap;
+	list-style: none;
+	font-size: 17px;
+	color: white;
+}
+
+header .menu-header li {
+	display: flex;
+	align-items: center;
+	gap: 5px;
+}
+
+header .menu-header li:hover{
+	border-bottom: 2px solid white;
+}
+
+header .menu-header a{
+	text-decoration: none;
+	color: white;
+	transition: .5s;
+}
+
+header .menu-header li i{
+	font-size: 19px;
+}
+
+
+/*-----SEÇAO ENCONTRE EVENTOS-----*/
+.encontre-eventos{
+	width: 100%;
+	display: inline-flex;
+	justify-content: center;
+	flex-direction: column;
+	align-items: center;
+	gap: 0px;
+	background-color: #3c3c3c;
+}
+
+.encontre-eventos h1{
+	max-width: 800px;
+	text-align: center;
+	font-size: 48px;
+	font-weight: 700;
+	margin-top: 20px;
+	color: white;
+}
+
+.encontre-eventos p{
+	font-size: 16px;
+	margin: 5px 0;
+	color: white;
+}
+
+.pesquisa-home{
+	width: 644px;
+	background-color: white;
+	border-radius: 23px;
+	padding: 27px 36px 12px;
+	margin-bottom: 50px;
+	margin-top: 5px;
+	box-shadow: 0px 3px 5px #444;
+}
+
+.inputs-pesquisa-home{
+	display: flex;
+	gap: 10px;
+	margin-bottom: 20px;
+}
+
+.input-wrapper{
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	width: 208px;
+	background-color: #E8E8E8;
+	border-radius: 20px;
+	padding: 8px;
+	color: #747474;
+}
+
+.input-wrapper:focus-within {
+    box-shadow: 0 0 0 2px #3c3c3c;
+    border-radius: 20px;
+}
+
+.input-wrapper i{
+	font-size: 20px;
+	max-width: calc(100% - 30px);
+}
+
+.input-wrapper input{
+	width: 148px;
+	border: none;
+	color: #747474;
+	background-color: #E8E8E8;
+	font-size: 16px;
+	outline: none;
+}
+
+#input-date{
+	width: 100%;
+	color: #747474;
+	cursor: text;
+}
+
+.button-wrapper{
+	display: flex;
+	justify-content: center;
+	border-radius: 100px;
+	width: 100%;
+	height: 30px;
+	background-color: #3c3c3c;
+	transition: .3s;
+}
+
+.button-wrapper:hover{
+	cursor: pointer;
+	background-color: #7346DF;
+}
+
+.button-wrapper i{
+	font-size: 20px;
+	color: white;
+	align-self: center;
+	max-width: calc(100% - 30px);
+}
+
+.button-wrapper button{
+	background-color: transparent;
+	border: none;
+	color: white;
+	font-size: 16px;
+}
+
+.button-wrapper button:hover{
+	cursor: pointer;
+}
+
+
+/*----------SECAO CATEGORIAS-----------*/
+.secao-categorias{
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+	align-items: center;
+	padding: 40px 100px;
+	box-sizing: border-box;
+	background-color: #F3F3F3;
+}
+
+.secao-categorias h2{
+	margin: 0 0 50px 0;
+	font-size: 30px;
+	font-weight: 400;
+}
+
+.categorias{
+	width: 100%;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	text-align: center;
+	background-color: transparent;
+	padding-bottom: 20px;
+}
+
+.categorias i{
+	font-size: 25px;
+	text-align: center;
+	color: white;
+	padding: 8px;
+}
+
+.categoria{
+	width: 160px;
+	height: 110px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	background-color: white;
+	border-radius: 23px;
+	box-shadow: 0 3px 5px #666;
+}
+
+.categoria p{
+	margin-bottom: 0;
+}
+
+ .circle-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        color: white;
+        font-size: 24px;
+    }
+
+/*----------SECAO CATEGORIAS-----------*/
+.secao-destaque{
+	padding: 40px 100px;
+}
+
+
+/*---------------FOOTER----------------*/
+
+footer{
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	box-sizing: border-box;
+	background-color: #F5F5F5;
+}
+
+.infos-footer {
+	width: 100%;
+	display: flex;
+	flex-direction: row;
+	box-sizing: border-box;
+	justify-content: space-between;
+	padding: 30px 50px;
+	border-bottom: 2px solid black;
+}
+
+.infos-footer .slogan {
+	width: 400px;
+}
+
+.infos-footer .descubra {
+	gap: 2px;
+}
+
+.infos-footer .descubra ul{
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.infos-footer .organizadores {
+	gap: 2px;
+}
+
+.infos-footer .organizadores ul{
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.infos-footer .siga-nos {
+	gap: 2px;
+}
+
+.infos-footer .siga-nos ul{
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: row;
+	gap: 2px;
+}
+
+.footer {
+	width: 100%;
+	display: flex;
+	flex-direction: row;
+	box-sizing: border-box;
+	justify-content: space-between;
+	align-items: center;
+	padding: 0px 50px;
+}
+
+.footer ul {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: row;
+	gap: 10px;
+}
