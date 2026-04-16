@@ -1,4 +1,4 @@
-body, h3{
+body, h3, p{
     margin: 0;
     padding: 0;
 	font-family: "Inter", sans-serif;
@@ -315,4 +315,100 @@ footer{
 	display: flex;
 	flex-direction: row;
 	gap: 10px;
+}
+
+ /*---------------MODAL DE LOGIN----------------*/
+
+/* Estilos para o modal */
+#modal-login {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(255, 255, 255, 0);
+	backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
+	z-index: 1000;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	opacity: 0;
+	visibility: hidden;
+	pointer-events: none;
+	transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+#modal-login.open {
+	opacity: 1;
+	visibility: visible;
+	pointer-events: auto;
+}
+
+.secao-login {
+	position: relative;
+	background-color: white;
+	border-radius: 10px;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+	padding: 40px;
+	max-width: 420px;
+	width: 90%;
+}
+
+.close {
+	position: absolute;
+	top: 10px;
+	right: 15px;
+	font-size: 24px;
+	cursor: pointer;
+	color: #333;
+}
+
+.secao-login {
+	max-width: 350px;
+	height: auto;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	padding: 40px;
+}
+
+.form-login {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	gap: 5px;
+
+}
+
+.form-login .input-login {
+	display: flex;
+	flex-direction: column;
+}
+
+.form-login .check-remember {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+}
+
+.form-login	p {
+	align-self: center;
+}
+
+.secao-cadastro {
+	width: 100%;
+	box-sizing: border-box;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 10px;
+	padding: 50px;
+}
+
+#form-cadastro {
+	width: 600px;
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
 }

@@ -11,7 +11,7 @@
 				<a href="#"><i class="fa-solid fa-ticket"></i> Meus Ingressos</a>
 			</li>
 			<li>
-				<a href="#"><i class="fa-solid fa-user-plus"></i> Entrar</a>
+				<a href="#" id="btn-login"><i class="fa-solid fa-user-plus"></i> Entrar</a>
 			</li>
 		</ul>
 	</header>
