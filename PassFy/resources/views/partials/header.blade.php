@@ -1,5 +1,5 @@
 <header>
-		<img class="logo-header" src="{{ asset('images/logo.png') }}">
+		<a href="{{ route('home') }}"><img class="logo-header" src="{{ asset('images/logo.png') }}"></a>
 		<ul class="menu-header">
 			<li>
 				<a href="#"><i class="fa-regular fa-square-plus"></i> Criar Eventos</a>

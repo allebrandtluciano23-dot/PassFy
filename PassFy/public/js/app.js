@@ -1,3 +1,5 @@
+// ----------------------------------Login-----------------------------------
+
 const modal = document.getElementById('modal-login');
 const btnLogin = document.getElementById('btn-login');
 const closeBtn = document.querySelector('.close');
@@ -23,6 +25,23 @@ window.addEventListener('click', function(e) {
     }
 });
 
+// Toggle password visibility
+const togglePassword = document.getElementById('toggle-password');
+if (togglePassword) {
+    togglePassword.addEventListener('click', function() {
+        const passwordInput = document.getElementById('login-password');
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            this.classList.remove('fa-eye');
+            this.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            this.classList.remove('fa-eye-slash');
+            this.classList.add('fa-eye');
+        }
+    });
+}
+
 const loginConfig = {
     cliente: {
         route: '/login/cliente',
@@ -42,7 +61,7 @@ const loginConfig = {
         route: '/login/usuario',
         fields: `
             <label>Username</label>
-			<input type="text" name="username" placeholder="username">
+			<input type="text" name="username" placeholder="Username">
         `
     }
 };
@@ -117,18 +136,23 @@ const registerConfig = {
     }
 };
 
-// Cadastro
+// ----------------------------------Cadastro-----------------------------------
+
 let tipoEscolhidoCadastro = 'cliente';
 const selecTipoCadastro = document.getElementById('tipo-cadastro');
 const formCadastro = document.getElementById('form-cadastro');
 const campoDinamicoCadastro = document.getElementById('input-dinamico-cadastro');
 
-if (selecTipoCadastro && campoDinamicoCadastro && formCadastro) {
+if (campoDinamicoCadastro && formCadastro) {
     // Atualizar campos ao mudar o tipo
-    selecTipoCadastro.addEventListener('change', function() {
-        tipoEscolhidoCadastro = this.value;
-        campoDinamicoCadastro.innerHTML = registerConfig[tipoEscolhidoCadastro].fields;
-        formCadastro.action = registerConfig[tipoEscolhidoCadastro].route;
+    document.querySelectorAll('.register-type-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.register-type-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            tipoEscolhidoCadastro = this.dataset.type;
+            campoDinamicoCadastro.innerHTML = registerConfig[tipoEscolhidoCadastro].fields;
+            formCadastro.action = registerConfig[tipoEscolhidoCadastro].route;
+        });
     });
 
     // Inicializar com cliente
