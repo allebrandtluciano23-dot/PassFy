@@ -22,6 +22,11 @@ return [
         // ADMIN / USUÁRIOS DO SISTEMA
         'web' => [
             'driver' => 'session',
+            'provider' => 'users', // Mantém o padrão do Laravel
+        ],
+
+        'usuario' => [
+            'driver' => 'session',
             'provider' => 'usuarios',
         ],
 
@@ -44,6 +49,11 @@ return [
     |--------------------------------------------------------------------------
     */
     'providers' => [
+
+        'users' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\User::class,
+        ],
 
         'usuarios' => [
             'driver' => 'eloquent',

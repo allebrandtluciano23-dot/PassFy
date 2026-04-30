@@ -23,13 +23,20 @@
 			<label>Email</label>
 				<input type="text" name="email" placeholder="exemplo@email.com" required>
 			</div>
-			<div class="input-wrapper-registro" id="cidade-cadastro" required>
-				<label>Cidade</label>
-				<input type="text" name="city" placeholder="Cidade">
-			</div>
 			<div class="input-wrapper-registro" id="cep-cadastro" required>
 				<label>CEP</label>
-				<input type="text" name="cep" placeholder="CEP">
+				<input type="text" name="cep" placeholder="Formato: 12345678" maxlength="8" pattern="\d{8}" required>
+				<small id="cep-status" style="display: none; margin-top: 5px;"></small>
+			</div>
+			<div class="input-wrapper-registro" id="cidade-cadastro" required>
+				<label>Cidade</label>
+				<input type="text" id="city_display" placeholder="Cidade" readonly>
+				<input type="hidden" name="city" id="city_hidden">
+			</div>
+			<div class="input-wrapper-registro" id="uf-cadastro" required>
+				<label>UF</label>
+				<input type="text" id="state_display" placeholder="UF" readonly maxlength="2">
+				<input type="hidden" name="state" id="state_hidden">
 			</div>
 			<div class="input-wrapper-registro" id="endereço-cadastro" required>
 				<label>Endereço</label>

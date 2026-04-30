@@ -613,7 +613,7 @@ footer{
 	grid-column: 3 / 5;
 }
 #cidade-cadastro {
-	grid-column: span 3;
+	grid-column: span 2;
 }
 
 #endereço-cadastro {

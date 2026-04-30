@@ -17,7 +17,6 @@ return new class extends Migration
         $table->string('nomeCliente');
         $table->string('enderecoCliente');
         $table->string('cepCliente');
-        $table->string('bairroCliente');
         $table->string('telefoneCliente');
         $table->string('cpfCliente');
         $table->string('emailCliente')->unique();

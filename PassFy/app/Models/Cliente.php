@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Cliente extends Authenticatable
 {
@@ -17,7 +18,6 @@ class Cliente extends Authenticatable
         'nomeCliente',
         'enderecoCliente',
         'cepCliente',
-        'bairroCliente',
         'telefoneCliente',
         'cpfCliente',
         'emailCliente',
@@ -36,6 +36,16 @@ class Cliente extends Authenticatable
     public function cidade(): BelongsTo
     {
         return $this->belongsTo(Cidade::class, 'idCidade');
+    }
+
+    public function carrinho(): HasOne
+    {
+        return $this->hasOne(Carrinho::class, 'idCliente');
+    }
+
+    public function carteiraDigital(): HasOne
+    {
+        return $this->hasOne(CarteiraDigital::class, 'idCliente');
     }
 
     public function setSenhaClienteAttribute($value)

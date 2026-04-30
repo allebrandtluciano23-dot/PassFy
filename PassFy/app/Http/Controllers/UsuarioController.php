@@ -8,6 +8,82 @@ use Illuminate\Support\Facades\Auth;
 
 class UsuarioController extends Controller
 {
+    public function register(Request $request)
+    {
+        // Validar dados
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'password' => 'required|string|min:6',
+                'passwordConfirmation' => 'required|string|same:password',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erro na validação',
+                    'errors' => $e->errors()
+                ], 422);
+            }
+            return back()->withErrors($e->errors())->withInput();
+        }
+
+        try {
+            // Criar usuário
+            $usuario = Usuario::create([
+                'nomeUsuario' => $validated['name'],
+                'senhaUsuario' => $validated['password'],
+            ]);
+
+            // Fazer login automático
+            Auth::guard('usuario')->login($usuario);
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Cadastro realizado com sucesso!',
+                    'redirect' => route('home')
+                ]);
+            }
+
+            return redirect()->route('home')->with('success', 'Cadastro realizado com sucesso!');
+        } catch (\Exception $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erro ao registrar: ' . $e->getMessage()
+                ], 500);
+            }
+            return back()->withErrors(['error' => 'Erro ao registrar: ' . $e->getMessage()])->withInput();
+        }
+    }
+
+    public function login(Request $request)
+    {
+        if (Auth::guard('usuario')->attempt([
+            'nomeUsuario' => $request->username,
+            'password' => $request->password
+        ])) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Login realizado com sucesso!',
+                    'redirect' => route('home')
+                ]);
+            }
+            return redirect()->route('home')->with('success', 'Login realizado com sucesso!');
+        }
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Email ou senha incorretos.'
+            ], 401);
+        }
+
+        return back()->withErrors(['email' => 'Email ou senha incorretos.']);
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -30,19 +106,8 @@ class UsuarioController extends Controller
     public function store(Request $request)
     {
         //
-    }   
-    
-    public function login(Request $request)
-    {
-    if (Auth::guard('web')->attempt([
-        'emailUsuario' => $request->email,
-        'password' => $request->password
-    ])) {
-        return 'Admin logado';
     }
 
-    return 'Erro login admin';
-    }
     /**
      * Display the specified resource.
      */

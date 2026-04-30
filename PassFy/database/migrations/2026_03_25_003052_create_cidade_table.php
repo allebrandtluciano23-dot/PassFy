@@ -12,6 +12,7 @@ return new class extends Migration
             $table->id('idCidade');
             $table->string('nomeCidade');
             $table->string('ufCidade', 2);
+            $table->string('cepCidade')->unique();
             $table->timestamps();
         });
     }

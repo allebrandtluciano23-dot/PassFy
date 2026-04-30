@@ -18,10 +18,15 @@ class LoginController extends Controller
     // Logout
     public function logout(Request $request)
     {
-        Auth::logout();
+        // Logout de todos os guards
+        Auth::guard('web')->logout();
+        Auth::guard('cliente')->logout();
+        Auth::guard('organizadora')->logout();
+        Auth::guard('usuario')->logout();
+
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        
+
         return redirect('/');
     }
 }

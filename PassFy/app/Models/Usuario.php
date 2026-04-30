@@ -13,7 +13,6 @@ class Usuario extends Authenticatable
 
     protected $fillable = [
         'nomeUsuario',
-        'emailUsuario',
         'senhaUsuario',
     ];
 
@@ -29,7 +28,7 @@ class Usuario extends Authenticatable
 
     public function getAuthIdentifierName()
     {
-        return 'emailUsuario';
+        return 'nomeUsuario';
     }
 
     // 👇 hash automático
