@@ -42,3 +42,7 @@ Route::get('/register/organizadora', function () {
 Route::get('/register/usuario', function () {
     return view('auth.register');
 })->name('register.usuario');
+
+Route::get('/create/evento', function () {
+    return view('eventos.create');
+})->name('eventos.create');

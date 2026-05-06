@@ -26,7 +26,7 @@
 			@elseif(Auth::guard('organizadora')->check())
 				{{-- Header para Organizadora --}}
 				<li>
-					<a href="#"><i class="fa-regular fa-square-plus"></i> Criar Evento</a>
+					<a href="{{ route('eventos.create')}}"><i class="fa-regular fa-square-plus"></i> Criar Evento</a>
 				</li>
 				<li>
 					<a href="#"><i class="fa-regular fa-calendar"></i> Meus Eventos</a>
