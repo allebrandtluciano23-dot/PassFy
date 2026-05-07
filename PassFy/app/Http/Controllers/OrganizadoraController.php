@@ -87,8 +87,13 @@ class OrganizadoraController extends Controller
 
     public function login(Request $request)
     {
+        $request->validate([
+            'cnpj' => 'required|string',
+            'password' => 'required|string',
+        ]);
+
         if (Auth::guard('organizadora')->attempt([
-            'emailOrg' => $request->email,
+            'cnpjOrg' => $request->cnpj,
             'password' => $request->password
         ])) {
             if ($request->expectsJson()) {
@@ -104,11 +109,11 @@ class OrganizadoraController extends Controller
         if ($request->expectsJson()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Email ou senha incorretos.'
+                'message' => 'CNPJ ou senha incorretos.'
             ], 401);
         }
 
-        return back()->withErrors(['email' => 'Email ou senha incorretos.']);
+        return back()->withErrors(['cnpj' => 'CNPJ ou senha incorretos.']);
     }
 
     /**
