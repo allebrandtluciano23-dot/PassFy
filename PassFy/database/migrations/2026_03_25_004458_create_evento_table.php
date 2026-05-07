@@ -21,7 +21,8 @@ return new class extends Migration
         $table->date('dataEvento'); 
         $table->text('descricaoEvento');
         $table->char('statusEvento', 1);
-
+        $table->string('imagemEvento', 255);
+        
         $table->timestamps();
 
         $table->foreign('idOrg')
