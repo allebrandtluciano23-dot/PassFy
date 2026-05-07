@@ -20,6 +20,7 @@ class Evento extends Model
         'dataEvento',
         'descricaoEvento',
         'statusEvento',
+        'imagemEvento',
     ];
 
     // Relacionamento com Organizadora
