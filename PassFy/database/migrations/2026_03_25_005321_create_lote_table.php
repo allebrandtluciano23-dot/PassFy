@@ -16,7 +16,7 @@ return new class extends Migration
 
             $table->string('nomeLote');
             $table->integer('quantidadeTotal');
-            $table->decimal('valoIngresso', 10, 2);
+            $table->decimal('valorIngresso', 10, 2);
             
             $table->timestamps();
 

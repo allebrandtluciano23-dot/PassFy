@@ -15,11 +15,11 @@ class Lote extends Model
         'idEvento',
         'nomeLote',
         'quantidadeTotal',
-        'valoIngresso',
+        'valorIngresso',
     ];
 
     protected $casts = [
-        'valoIngresso' => 'decimal:2',
+        'valorIngresso' => 'decimal:2',
     ];
 
     // Relacionamento com Evento
