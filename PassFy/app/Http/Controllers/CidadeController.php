@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Cidade;
 use App\Services\CepService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class CidadeController extends Controller
 {
@@ -18,7 +19,7 @@ class CidadeController extends Controller
     /**
      * Busca cidade e UF por CEP
      */
-    public function searchByCep(Request $request)
+    public function buscarPorCep(Request $request)
     {
         try {
             $cep = $request->input('cep');
@@ -43,6 +44,16 @@ class CidadeController extends Controller
                 'message' => $e->getMessage(),
             ], 400);
         }
+    }
+
+    public function getCidadesByUf($uf)
+    {
+        $cidade = DB::table('cidade')
+            ->where('ufCidade', strtoupper($uf))
+            ->orderBy('nomeCidade')
+            ->get(['idCidade as id', 'nomeCidade as nome']);
+
+        return response()->json($cidade);
     }
 
     /**

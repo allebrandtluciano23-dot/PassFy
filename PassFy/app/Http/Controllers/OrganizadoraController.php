@@ -16,7 +16,7 @@ class OrganizadoraController extends Controller
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
                 'email' => 'required|email|unique:organizadora,emailOrg',
-                'city' => 'required|string|max:255',
+                'city' => 'required|integer|exists:cidade,idCidade',
                 'state' => 'required|string|size:2',
                 'cep' => 'required|string|size:8|regex:/^\d{8}$/',
                 'address' => 'required|string|max:255',
@@ -37,22 +37,9 @@ class OrganizadoraController extends Controller
         }
 
         try {
-            // Encontrar cidade pelo nome e UF
-            $cidade = Cidade::where('nomeCidade', $validated['city'])
-                ->where('ufCidade', $validated['state'])
-                ->first();
 
-            if (!$cidade) {
-                $cidade = Cidade::create([
-                    'nomeCidade' => $validated['city'],
-                    'ufCidade' => $validated['state'],
-                    'cepCidade' => $validated['cep'],
-                ]);
-            }
-
-            // Criar organizadora
             $organizadora = Organizadora::create([
-                'idCidade' => $cidade->idCidade,
+                'idCidade' => $validated['city'],
                 'nomeOrg' => $validated['name'],
                 'emailOrg' => $validated['email'],
                 'senhaOrg' => $validated['password'],

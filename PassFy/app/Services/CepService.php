@@ -11,68 +11,54 @@ class CepService
 
     /**
      * Busca cidade por CEP
-     * Primeiro tenta no banco de dados, depois na API ViaCEP
+     * Consulta a API ViaCEP e cruza com o banco local de cidades
      */
     public function buscarPorCep(string $cep): ?array
     {
-        // Limpar CEP (remover formatação)
         $cepLimpo = preg_replace('/\D/', '', $cep);
 
-        // Validar CEP (deve ter 8 dígitos)
         if (strlen($cepLimpo) !== 8) {
             throw new \Exception('CEP deve conter 8 dígitos');
         }
 
-        // Buscar no banco de dados
-        $cidade = Cidade::where('cepCidade', $cepLimpo)->first();
-
-        if ($cidade) {
-            return [
-                'success' => true,
-                'source' => 'database',
-                'cep' => $cepLimpo,
-                'nomeCidade' => $cidade->nomeCidade,
-                'ufCidade' => $cidade->ufCidade,
-            ];
-        }
-
-        // Buscar na API ViaCEP
+        // Consulta a API ViaCEP
         try {
             $response = Http::timeout(5)->get(self::VIACEP_URL . "/{$cepLimpo}/json");
 
             if ($response->failed() || isset($response['erro'])) {
                 return [
                     'success' => false,
-                    'message' => 'CEP não encontrado',
+                    'message' => 'CEP não encontrado na API',
                 ];
             }
 
             $dados = $response->json();
 
-            // Salvar no banco para futuras buscas
+            // Busca a cidade no banco local
             $cidade = Cidade::where('nomeCidade', $dados['localidade'])
                 ->where('ufCidade', $dados['uf'])
                 ->first();
 
             if (!$cidade) {
-                $cidade = Cidade::create([
-                    'nomeCidade' => $dados['localidade'],
-                    'ufCidade' => $dados['uf'],
-                    'cepCidade' => $cepLimpo,
-                ]);
+                return [
+                    'success' => false,
+                    'message' => "Cidade {$dados['localidade']}/{$dados['uf']} não cadastrada no banco",
+                ];
             }
 
             return [
                 'success' => true,
                 'source' => 'api',
                 'cep' => $cepLimpo,
-                'nomeCidade' => $dados['localidade'],
-                'ufCidade' => $dados['uf'],
+                'idCidade' => $cidade->idCidade,
+                'nomeCidade' => $cidade->nomeCidade,
+                'ufCidade' => $cidade->ufCidade,
             ];
+
         } catch (\Exception $e) {
             return [
                 'success' => false,
-                'message' => 'Erro ao buscar CEP: ' . $e->getMessage(),
+                'message' => 'Erro ao consultar API de CEP: ' . $e->getMessage(),
             ];
         }
     }

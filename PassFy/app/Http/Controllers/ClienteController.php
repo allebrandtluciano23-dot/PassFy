@@ -20,7 +20,7 @@ class ClienteController extends Controller
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
                 'email' => 'required|email|unique:cliente,emailCliente',
-                'city' => 'required|string|max:255',
+                'city' => 'required|integer|exists:cidade,idCidade',
                 'state' => 'required|string|size:2',
                 'cep' => 'required|string|size:8|regex:/^\d{8}$/',
                 'address' => 'required|string|max:255',
@@ -43,22 +43,9 @@ class ClienteController extends Controller
         try {
             DB::beginTransaction();
 
-            // Encontrar cidade pelo nome e UF
-            $cidade = Cidade::where('nomeCidade', $validated['city'])
-                ->where('ufCidade', $validated['state'])
-                ->first();
-
-            if (!$cidade) {
-                $cidade = Cidade::create([
-                    'nomeCidade' => $validated['city'],
-                    'ufCidade' => $validated['state'],
-                    'cepCidade' => $validated['cep'],
-                ]);
-            }
-
             // Criar cliente
             $cliente = Cliente::create([
-                'idCidade' => $cidade->idCidade,
+                'idCidade' => $validated['city'],
                 'nomeCliente' => $validated['name'],
                 'emailCliente' => $validated['email'],
                 'senhaCliente' => $validated['password'],

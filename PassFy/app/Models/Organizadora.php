@@ -27,7 +27,6 @@ class Organizadora extends Authenticatable
         'senhaOrg',
     ];
 
-    // 👇 ESSENCIAL pro login funcionar
     public function getAuthPassword()
     {
         return $this->senhaOrg;

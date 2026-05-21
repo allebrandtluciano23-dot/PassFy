@@ -12,16 +12,18 @@ return new class extends Migration
     Schema::create('evento', function (Blueprint $table) {
         $table->id('idEvento');
 
-        $table->unsignedBigInteger('idOrg');
-        $table->unsignedBigInteger('idCliente');
+        $table->unsignedBigInteger('idOrg')->nullable();
+        $table->unsignedBigInteger('idCliente')->nullable();
         $table->unsignedBigInteger('idCidade');
 
         $table->string('nomeEvento');
         $table->string('localEvento');
-        $table->date('dataEvento'); 
+        $table->date('dataEvento');
+        $table->time('horaEvento')->nullable();
+        $table->string('tipoEvento')->nullable();
         $table->text('descricaoEvento');
         $table->char('statusEvento', 1);
-        $table->string('imagemEvento', 255);
+        $table->string('imagemEvento', 255)->nullable();
         
         $table->timestamps();
 

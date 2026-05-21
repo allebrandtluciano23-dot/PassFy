@@ -5,6 +5,7 @@ use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\OrganizadoraController;   
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\EventoController;
 use App\Http\Controllers\CidadeController;
 use App\Http\Controllers\Auth\LoginController;
 
@@ -22,7 +23,10 @@ Route::post('/register/organizadora', [OrganizadoraController::class, 'register'
 Route::post('/register/usuario', [UsuarioController::class, 'register'])->name('register.usuario.store');
 
 // Rota para buscar CEP
-Route::get('/api/cidade/search-by-cep', [CidadeController::class, 'searchByCep'])->name('cidade.search-by-cep');
+Route::get('/api/cidade/buscar-por-cep', [CidadeController::class, 'buscarPorCep'])->name('cidade.buscar-por-cep');
+
+//Rotas para buscar no banco de dados
+Route::get('/cidades/{uf}', [CidadeController::class, 'getCidadesByUf'])->name('cidades.by.uf');
 
 // Rotas para as páginas
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -46,3 +50,5 @@ Route::get('/register/usuario', function () {
 Route::get('/create/evento', function () {
     return view('eventos.create');
 })->name('eventos.create');
+
+Route::post('/create/evento', [EventoController::class, 'store'])->name('eventos.store');

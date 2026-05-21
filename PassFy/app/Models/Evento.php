@@ -18,6 +18,8 @@ class Evento extends Model
         'nomeEvento',
         'localEvento',
         'dataEvento',
+        'horaEvento',
+        'tipoEvento',
         'descricaoEvento',
         'statusEvento',
         'imagemEvento',

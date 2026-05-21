@@ -70,7 +70,7 @@
 			@else
 				{{-- Header para Visitante (não autenticado) --}}
 				<li>
-					<a href="#"><i class="fa-regular fa-square-plus"></i> Criar Eventos</a>
+					<a href="#" id="visitor-criar-evento"><i class="fa-regular fa-square-plus"></i> Criar Eventos</a>
 				</li>
 				<li>
 					<a href="#"><i class="fa-regular fa-calendar"></i> Eventos</a>

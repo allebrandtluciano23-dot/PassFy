@@ -14,6 +14,5 @@ class Cidade extends Model
     protected $fillable = [
         'nomeCidade',
         'ufCidade',
-        'cepCidade',
     ];
 }
