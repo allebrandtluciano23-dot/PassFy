@@ -223,6 +223,9 @@ if (campoDinamicoCadastro && formCadastro) {
         }
 
         // Validar UF e cidade selecionadas
+        const ufSelect = document.querySelector('select[name="state"]');
+        const cidadeSelect = document.querySelector('select[name="city"]');
+
         const ufSelecionada = ufSelect ? ufSelect.value : '';
         const cidadeSelecionada = cidadeSelect ? cidadeSelect.value : '';
         if (!ufSelecionada || !cidadeSelecionada) {
