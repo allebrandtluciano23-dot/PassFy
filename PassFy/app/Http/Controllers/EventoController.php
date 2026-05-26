@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Evento;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class EventoController extends Controller
 {
@@ -36,39 +38,56 @@ class EventoController extends Controller
             'tipoEvento' => 'required|string|max:100',
             'localEvento' => 'required|string|max:255',
             'descricaoEvento' => 'required|string',
-            'idCidade' => 'required|exists:cidade,idCidade',
+            'idCidade' => 'required|integer|exists:cidade,idCidade',
             'imagemEvento' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'lotes' => 'required|array|min:1',
+            'lotes.*.nomeLote' => 'required|string|max:255',
+            'lotes.*.quantidadeTotal' => 'required|integer|min:1',
+            'lotes.*.valorIngresso' => 'required|numeric|min:0',
         ]);
 
-        $evento = new Evento();
-        $evento->nomeEvento = $validated['nomeEvento'];
-        $evento->dataEvento = $validated['dataEvento'];
-        $evento->horaEvento = $validated['horaEvento'];
-        $evento->tipoEvento = $validated['tipoEvento'];
-        $evento->localEvento = $validated['localEvento'];
-        $evento->descricaoEvento = $validated['descricaoEvento'];
-        $evento->idCidade = $validated['idCidade'];
-        $evento->statusEvento = 'A';
+        DB::beginTransaction();
 
-        if (Auth::guard('organizadora')->check()) {
-            $evento->idOrg = Auth::guard('organizadora')->id();
+        try {
+            $evento = new Evento();
+            $evento->nomeEvento = $validated['nomeEvento'];
+            $evento->dataEvento = $validated['dataEvento'];
+            $evento->horaEvento = $validated['horaEvento'];
+            $evento->tipoEvento = $validated['tipoEvento'];
+            $evento->localEvento = $validated['localEvento'];
+            $evento->descricaoEvento = $validated['descricaoEvento'];
+            $evento->idCidade = $validated['idCidade'];
+            $evento->statusEvento = 'R';
+
+            if (Auth::guard('organizadora')->check()) {
+                $evento->idOrg = Auth::guard('organizadora')->user()->idOrg;
+            }
+
+            if (Auth::guard('cliente')->check()) {
+                $evento->idCliente = Auth::guard('cliente')->user()->idCliente;
+            }
+
+            if ($request->hasFile('imagemEvento')) {
+                $nomeImagem = time() . '.' . $request->file('imagemEvento')->extension();
+                $imagem = $request->file('imagemEvento')->storeAs('images/eventos', $nomeImagem, 'public');
+                $evento->imagemEvento = $imagem;
+            }
+
+            $evento->save();
+
+            foreach ($validated['lotes'] as $loteData) {
+                $evento->lotes()->create([
+                    'nomeLote' => $loteData['nomeLote'],
+                    'quantidadeTotal' => $loteData['quantidadeTotal'],
+                    'valorIngresso' => $loteData['valorIngresso'],
+                ]);
+            }
+
+            DB::commit();
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return redirect()->back()->withErrors(['error' => 'Erro ao criar evento: ' . $e->getMessage()])->withInput();
         }
-
-        if (Auth::guard('cliente')->check()) {
-            $evento->idCliente = Auth::guard('cliente')->id();
-        }
-
-        if (!$evento->idOrg && !$evento->idCliente) {
-            return redirect()->back()->with('error', 'Você precisa estar logado para criar um evento.');
-        }
-
-        if ($request->hasFile('imagemEvento')) {
-            $nomeImagem = time() . '.' . $request->file('imagemEvento')->extension();
-            $imagem = $request->file('imagemEvento')->storeAs('images/eventos', $nomeImagem, 'public');
-            $evento->imagemEvento = $imagem;
-        }
-
-        $evento->save();
 
         return redirect()->route('home')->with('success', 'Evento criado com sucesso!');
     }

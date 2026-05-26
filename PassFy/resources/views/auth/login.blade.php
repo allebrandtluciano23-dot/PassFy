@@ -9,7 +9,9 @@
     </div>
     <form class="form-login" id="form-login" method="POST" action="{{ route('login.cliente') }}">
         @csrf
-        <div id="input-dinamico-login" class="input-login"></div>
+        <div id="input-dinamico-login" class="input-login">
+            <!-- O input de CPF/email vai aparecer aqui dinamicamente -->
+        </div>
         <div class="input-login">
             <label for="login-password">Senha</label>
             <div class="password-wrapper">

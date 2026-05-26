@@ -51,7 +51,7 @@
 			</div>
 			<div class="input-wrapper-registro" style="grid-column: span 2;" required>
 				<label>Cidade</label>
-				<select id="cidade_select" name="city" required disabled>
+				<select id="cidade_select" name="idCidade" required disabled>
 					<option value="">Selecione uma UF primeiro</option>
 				</select>
 			</div>
@@ -88,6 +88,20 @@
 				</button>
 			</div>
 			<button type="submit" id="btn-criar-evento" class="btn-cadastro">Criar Evento</button>
+			@if(session('error'))
+				<div class="error-message" style="color: red; margin-top: 1rem;">
+					{{ session('error') }}
+				</div>
+			@endif
+			@if($errors->any())
+				<div class="error-message" style="color: red; margin-top: 1rem;">
+					<ul style="margin: 0; padding-left: 1.2rem;">
+						@foreach($errors->all() as $error)
+							<li>{{ $error }}</li>
+						@endforeach
+					</ul>
+				</div>
+			@endif
 			<div id="registerError" style="display: none; color: red;"></div>
 		</form>
 	</section>

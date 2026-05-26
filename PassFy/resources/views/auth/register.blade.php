@@ -18,7 +18,9 @@
 				<label>Nome Completo</label>
 				<input type="text" name="name" placeholder="Nome completo" required>
 			</div>
-			<div class="input-wrapper-registro" id="input-dinamico-cadastro" style="grid-column: span 2;" required></div>
+			<div class="input-wrapper-registro" id="input-dinamico-cadastro" style="grid-column: span 2;" required>
+				<!-- O input de CPF/CNPJ vai aparecer aqui dinamicamente -->
+			</div>
 			<div class="input-wrapper-registro" style="grid-column: 3 / 5;" required>
 			<label>Email</label>
 				<input type="text" name="email" placeholder="exemplo@email.com" required>

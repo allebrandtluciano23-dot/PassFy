@@ -262,7 +262,7 @@ if (campoDinamicoCadastro && formCadastro) {
 // Atualizar cidades ao mudar a UF
 document.addEventListener('DOMContentLoaded', function() {
     const ufSelect = document.querySelector('select[name="state"]');
-    const cidadeSelect = document.querySelector('select[name="city"]');
+    const cidadeSelect = document.querySelector('select[name="idCidade"]');
     
     if (ufSelect && cidadeSelect) {
         ufSelect.addEventListener('change', function() {
@@ -393,4 +393,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (addBtn) {
         addBtn.addEventListener('click', adicionarLote);
     }
+
+    // Adiciona um lote inicial automaticamente para evitar envio sem lotes
+    adicionarLote();
 });
