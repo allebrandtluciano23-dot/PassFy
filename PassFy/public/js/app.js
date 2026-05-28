@@ -265,7 +265,7 @@ if (campoDinamicoCadastro && formCadastro) {
 // Atualizar cidades ao mudar a UF
 document.addEventListener('DOMContentLoaded', function() {
     const ufSelect = document.querySelector('select[name="state"]');
-    const cidadeSelect = document.querySelector('select[name="idCidade"]');
+    const cidadeSelect = document.getElementById('cidade_select');
     
     if (ufSelect && cidadeSelect) {
         ufSelect.addEventListener('change', function() {
@@ -374,12 +374,6 @@ function adicionarLote() {
     const novoLote = document.createElement('div');
     novoLote.innerHTML = getLoteTemplate(loteCount);
     container.appendChild(novoLote.firstElementChild);
-    
-    // Scroll suave para o novo lote
-    const novoElemento = document.querySelector(`[data-lote-id="${loteCount}"]`);
-    if (novoElemento) {
-        novoElemento.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
 }
 
 // Remover lote

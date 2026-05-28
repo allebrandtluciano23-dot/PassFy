@@ -34,7 +34,7 @@ class Organizadora extends Authenticatable
 
     public function getAuthIdentifierName()
     {
-        return 'emailOrg';
+        return 'idOrg';
     }
 
     // Relacionamento

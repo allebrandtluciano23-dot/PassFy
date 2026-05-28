@@ -22,11 +22,14 @@ Route::post('/register/cliente', [ClienteController::class, 'register'])->name('
 Route::post('/register/organizadora', [OrganizadoraController::class, 'register'])->name('register.organizadora.store');
 Route::post('/register/usuario', [UsuarioController::class, 'register'])->name('register.usuario.store');
 
+Route::post('/create/evento', [EventoController::class, 'store'])->name('eventos.store');
+
 // Rota para buscar CEP
 Route::get('/api/cidade/buscar-por-cep', [CidadeController::class, 'buscarPorCep'])->name('cidade.buscar-por-cep');
 
 //Rotas para buscar no banco de dados
 Route::get('/cidades/{uf}', [CidadeController::class, 'getCidadesByUf'])->name('cidades.by.uf');
+Route::get('/meus-eventos', [EventoController::class, 'meusEventos'])->name('meus.eventos');
 
 // Rotas para as páginas
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -51,4 +54,6 @@ Route::get('/create/evento', function () {
     return view('eventos.create');
 })->name('eventos.create');
 
-Route::post('/create/evento', [EventoController::class, 'store'])->name('eventos.store');
+Route::get('/meus/eventos', function () {
+    return redirect()->route('meus.eventos');
+});

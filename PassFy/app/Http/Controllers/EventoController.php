@@ -13,10 +13,28 @@ class EventoController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        //
+
+    public function meusEventos()
+{
+    $eventos = collect(); // coleção vazia como fallback
+    
+    // Verificar se é organizadora logada
+    if (auth('organizadora')->check()) {
+        $organizadoraId = auth('organizadora')->user()->idOrg;
+        $eventos = Evento::where('idOrg', $organizadoraId)->get();
     }
+    // Verificar se é cliente logado
+    elseif (auth('cliente')->check()) {
+        $clienteId = auth('cliente')->user()->idCliente;
+        $eventos = Evento::where('idCliente', $clienteId)->get();
+    }
+    // Se não estiver logado, redireciona para login
+    else {
+        return redirect()->route('home')->with('error', 'Você precisa estar logado para acessar seus eventos.');
+    }
+    
+    return view('eventos.meuseventos', compact('eventos'));
+}
 
     /**
      * Show the form for creating a new resource.
