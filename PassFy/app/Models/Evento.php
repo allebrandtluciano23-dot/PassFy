@@ -50,4 +50,11 @@ class Evento extends Model
     {
         return $this->hasMany(Lote::class, 'idEvento');
     }
+
+    // Acessor para pegar o menor preço dos lotes
+    public function getPrecoMinimoAttribute()
+    {
+        return $this->lotes->min('valorIngresso');
+        return $min ?? 0;
+    }
 }

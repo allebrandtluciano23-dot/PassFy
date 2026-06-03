@@ -23,6 +23,10 @@ Route::post('/register/organizadora', [OrganizadoraController::class, 'register'
 Route::post('/register/usuario', [UsuarioController::class, 'register'])->name('register.usuario.store');
 
 Route::post('/create/evento', [EventoController::class, 'store'])->name('eventos.store');
+Route::get('/eventos/{id}/edit', [EventoController::class, 'edit'])->name('eventos.edit');
+Route::put('/eventos/{id}', [EventoController::class, 'update'])->name('eventos.update');
+
+Route::delete('/lotes/{id}', [EventoController::class, 'destroyLote'])->name('lotes.destroy');
 
 // Rota para buscar CEP
 Route::get('/api/cidade/buscar-por-cep', [CidadeController::class, 'buscarPorCep'])->name('cidade.buscar-por-cep');

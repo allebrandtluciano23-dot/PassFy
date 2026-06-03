@@ -63,17 +63,14 @@
 				<label>Descrição</label>
 				<textarea name="descricaoEvento" placeholder="Descrição do evento" style="height: 100px;" required></textarea>
 			</div>
-			<div class="file-upload" style="grid-column: 2">
-				<label for="image" class="file-upload-label">
+			<div class="file-upload" style="grid-column: 2 / span 2;">
+				<label for="image" class="file-upload-label" id="uploadLabel">
 					<i class="fas fa-cloud-upload-alt"></i>
 					<span>Clique para selecionar a imagem</span>
 					<span class="file-name" id="fileName"></span>
 				</label>
 				<input type="file" id="image" name="imagemEvento" accept="image/*">
 				<small>A imagem deve ser no formato JPG, PNG ou GIF e não pode exceder 2MB.</small>
-			</div>
-			<div class="file-preview" id="filePreview" style="grid-column: 3;">
-					<img id="previewImage" src="#" alt="Prévia da imagem">
 			</div>
 			<div class="lotes-section" style="grid-row: 7; grid-column: span 4;">
 				<h3>Lotes de Ingressos</h3>

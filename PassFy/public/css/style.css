@@ -679,11 +679,31 @@ footer{
     border-radius: 12px;
     cursor: pointer;
     transition: all 0.3s ease;
+    min-height: 200px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
-.file-upload-label:hover {
-    border-color: #8B5CF6;
-    background-color: #f3e8ff;
+.file-upload-label.has-preview {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border: 2px solid #8B5CF6;
+}
+
+.file-upload-label.has-preview i,
+.file-upload-label.has-preview span:not(.file-name) {
+    display: none;
+}
+
+.file-upload-label.has-preview .file-name {
+    background: rgba(0,0,0,0.7);
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    color: white;
+    margin-top: auto;
 }
 
 .file-upload-label i {
@@ -711,16 +731,9 @@ footer{
     height: 0;
 }
 
+/* Remove o file-preview separado */
 .file-preview {
-    margin-top: 15px;
     display: none;
-}
-
-.file-preview img {
-    max-width: 100%;
-    max-height: 200px;
-    border-radius: 8px;
-    border: 1px solid #ddd;
 }
 
 .lotes-section {
@@ -833,6 +846,151 @@ footer{
 
 .btn-add-lote i {
     margin-right: 8px;
+}
+
+.meus-eventos {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+	gap: 20px;
+	padding: 20px;
+	box-sizing: border-box;
+}
+
+/*--------------------CARD DE EVENTO--------------------*/
+.eventos-lista {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 20px;
+	justify-content: start;
+	margin: 20px;
+}
+.card-evento {
+    width: 370px;
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    border-radius: 30px;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: relative;  /* 👈 ESSENCIAL para o badge absoluto funcionar */
+}
+
+.card-tipo-badge {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    z-index: 10;
+    padding: 6px 16px;
+    border-radius: 20px;  /* badge redondo */
+    font-size: 12px;
+    font-weight: 600;
+    color: white;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+/* Cores por tipo de evento */
+.card-tipo-badge[data-tipo="show"] { background-color: #A855F7; }
+.card-tipo-badge[data-tipo="moda"] { background-color: #FF3D7B; }
+.card-tipo-badge[data-tipo="gastronomia"] { background-color: #FF8D3B; }
+.card-tipo-badge[data-tipo="palestra"] { background-color: #555DF7; }
+.card-tipo-badge[data-tipo="esporte"] { background-color: #000000; }
+.card-tipo-badge[data-tipo="arte"] { background-color: #EE4346; }
+
+/* Fallback */
+.card-tipo-badge[data-tipo=""] { background-color: #6c757d; }
+
+.card-evento .card-imagem {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 30px 30px 0 0;
+    margin-bottom: 15px;
+    display: block;
+}
+
+.card-evento .card-conteudo {
+	padding: 0 20px 0 20px;
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	text-align: left;
+	justify-content: space-between;
+}
+.card-evento .card-conteudo h2 {
+	font-size: 20px;
+	font-weight: 400;
+	color: #333;
+	margin-bottom: 15px;
+}
+.card-evento .card-conteudo .card-data, .card-evento .card-conteudo .card-cidade {
+	font-size: 14px;
+	color: #666;
+	margin: 5px 0;
+}
+
+.card-evento .btn-editar-evento {
+	text-decoration: none;
+    margin: 20px 20px 0 20px;
+    padding: 12px 20px;
+    background-color: transparent;
+    color: #333;
+    border: none;
+    border-top: 1px solid #999;
+    border-radius: 0 0 30px 30px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.card-evento .btn-editar-evento::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -50%;
+    width: 200%;
+    height: 0%;
+    background: #333;
+    transition: height 0.2s ease;
+    z-index: -1;
+    border-radius: 30px 30px 30px 30px;
+}
+
+.card-evento .btn-editar-evento:hover {
+    color: white;
+	margin: 20px 0 0 0;
+}
+
+.card-evento .btn-editar-evento:hover::before {
+    height: 100%;
+}
+
+.btn-cancelar {
+    display: inline-block;
+    padding: 12px 24px;
+    background-color: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.btn-cancelar:hover {
+    background-color: #dc2626;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
 }
 
 /*--------------------templates--------------------*/
