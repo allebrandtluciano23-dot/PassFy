@@ -4,6 +4,12 @@
 			@if(Auth::guard('cliente')->check())
 				{{-- Header para Cliente --}}
 				<li>
+					<a href="{{ route('eventos.create')}}"><i class="fa-regular fa-square-plus"></i> Criar Evento</a>
+				</li>
+				<li>
+					<a href="{{ route('meus.eventos') }}"><i class="fa-regular fa-calendar"></i> Meus Eventos</a>
+				</li>
+				<li>
 					<a href="#"><i class="fa-solid fa-shopping-cart"></i> Carrinho</a>
 				</li>
 				<li>

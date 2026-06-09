@@ -11,7 +11,6 @@ class OrganizadoraController extends Controller
 {
     public function register(Request $request)
     {
-        // Validar dados
         try {
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
@@ -27,29 +26,29 @@ class OrganizadoraController extends Controller
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             if ($request->expectsJson()) {
+                $errors = $e->errors();
+                $firstError = collect($errors)->flatten()->first();
                 return response()->json([
                     'success' => false,
-                    'message' => 'Erro na validação',
-                    'errors' => $e->errors()
+                    'message' => $firstError,
+                    'errors' => $errors
                 ], 422);
             }
             return back()->withErrors($e->errors())->withInput();
         }
 
         try {
-
             $organizadora = Organizadora::create([
                 'idCidade' => $validated['city'],
                 'nomeOrg' => $validated['name'],
                 'emailOrg' => $validated['email'],
-                'senhaOrg' => $validated['password'],
+                'senhaOrg' => bcrypt($validated['password']),
                 'cnpjOrg' => $validated['cnpj'],
                 'cepOrg' => $validated['cep'],
                 'enderecoOrg' => $validated['address'],
                 'telefoneOrg' => $validated['phone'],
             ]);
 
-            // Fazer login automático
             Auth::guard('organizadora')->login($organizadora);
 
             if ($request->expectsJson()) {
@@ -61,14 +60,15 @@ class OrganizadoraController extends Controller
             }
 
             return redirect()->route('home')->with('success', 'Cadastro realizado com sucesso!');
+            
         } catch (\Exception $e) {
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Erro ao registrar: ' . $e->getMessage()
+                    'message' => 'Erro ao cadastrar: ' . $e->getMessage()
                 ], 500);
             }
-            return back()->withErrors(['error' => 'Erro ao registrar: ' . $e->getMessage()])->withInput();
+            return back()->withErrors(['error' => 'Erro ao cadastrar: ' . $e->getMessage()])->withInput();
         }
     }
 

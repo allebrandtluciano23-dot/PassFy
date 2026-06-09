@@ -22,9 +22,29 @@ Route::post('/register/cliente', [ClienteController::class, 'register'])->name('
 Route::post('/register/organizadora', [OrganizadoraController::class, 'register'])->name('register.organizadora.store');
 Route::post('/register/usuario', [UsuarioController::class, 'register'])->name('register.usuario.store');
 
-Route::post('/create/evento', [EventoController::class, 'store'])->name('eventos.store');
-Route::get('/eventos/{id}/edit', [EventoController::class, 'edit'])->name('eventos.edit');
-Route::put('/eventos/{id}', [EventoController::class, 'update'])->name('eventos.update');
+Route::middleware(['auth:cliente,organizadora'])->group(function () {
+    Route::post('/create/evento', [EventoController::class, 'store'])->name('eventos.store');
+    Route::get('/eventos/{id}/edit', [EventoController::class, 'edit'])->name('eventos.edit');
+    Route::put('/eventos/{id}', [EventoController::class, 'update'])->name('eventos.update');
+    Route::post('/eventos/{id}/ativar', [EventoController::class, 'ativar'])->name('eventos.ativar');
+    Route::post('/eventos/{id}/cancelar', [EventoController::class, 'cancelar'])->name('eventos.cancelar');
+    Route::get('/meus-eventos', [EventoController::class, 'meusEventos'])->name('meus.eventos');
+
+    Route::get('/create/evento', function () {
+        return view('eventos.create');
+    })->name('eventos.create');
+
+    Route::get('/meus/eventos', function () {
+        return redirect()->route('meus.eventos');
+    });
+});
+
+Route::middleware(['auth:cliente'])->group(function () {
+    Route::get('/carrinho/adicionar', [CarrinhoController::class, 'adicionar'])->name('carrinho.adicionar');
+});
+
+Route::get('/evento/{id}', [EventoController::class, 'show'])->name('evento.show');
+Route::get('/buscar-eventos', [EventoController::class, 'buscar'])->name('eventos.buscar');
 
 Route::delete('/lotes/{id}', [EventoController::class, 'destroyLote'])->name('lotes.destroy');
 
@@ -33,7 +53,6 @@ Route::get('/api/cidade/buscar-por-cep', [CidadeController::class, 'buscarPorCep
 
 //Rotas para buscar no banco de dados
 Route::get('/cidades/{uf}', [CidadeController::class, 'getCidadesByUf'])->name('cidades.by.uf');
-Route::get('/meus-eventos', [EventoController::class, 'meusEventos'])->name('meus.eventos');
 
 // Rotas para as páginas
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -53,11 +72,3 @@ Route::get('/register/organizadora', function () {
 Route::get('/register/usuario', function () {
     return view('auth.register');
 })->name('register.usuario');
-
-Route::get('/create/evento', function () {
-    return view('eventos.create');
-})->name('eventos.create');
-
-Route::get('/meus/eventos', function () {
-    return redirect()->route('meus.eventos');
-});

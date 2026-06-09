@@ -3,12 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\Evento;
+use App\Models\Carteira;
+use App\Models\Pedido;
+use App\Models\Cidade;
+use App\Models\Lote;
+use App\Models\Ingresso;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use App\Models\Cidade;
-use App\Models\Lote;
 
 class EventoController extends Controller
 {
@@ -19,32 +23,79 @@ class EventoController extends Controller
         // Verificar se é organizadora logada
         if (auth('organizadora')->check()) {
             $organizadoraId = auth('organizadora')->user()->idOrg;
-            $eventos = Evento::where('idOrg', $organizadoraId)->get();
+            $eventos = Evento::with(['cidade', 'lotes'])
+            ->where('idOrg', $organizadoraId)
+            ->orderBy('created_at', 'desc')
+            ->simplePaginate(12);
         }
         // Verificar se é cliente logado
         elseif (auth('cliente')->check()) {
             $clienteId = auth('cliente')->user()->idCliente;
-            $eventos = Evento::where('idCliente', $clienteId)->get();
+            $eventos = Evento::with(['cidade', 'lotes'])
+            ->where('idCliente', $clienteId)
+            ->orderBy('created_at', 'desc')
+            ->simplePaginate(12);
         }
         // Se não estiver logado, redireciona para login
         else {
             return redirect()->route('home')->with('error', 'Você precisa estar logado para acessar seus eventos.');
         }
+
+        $statusLabels = [
+            'R' => 'Rascunho',
+            'A' => 'Ativo',
+            'E' => 'Esgotado',
+            'C' => 'Cancelado',
+            'X' => 'Encerrado',
+        ];
         
-        return view('eventos.meuseventos', compact('eventos'));
+        return view('eventos.meuseventos', compact('eventos', 'statusLabels'));
+    }
+
+    public function buscar(Request $request)
+    {
+        $query = Evento::with(['cidade', 'lotes'])
+            ->where('statusEvento', 'A')
+            ->where('dataEvento', '>=', Carbon::today());
+
+        // Filtro por nome do evento
+        if ($request->filled('name')) {
+            $query->where('nomeEvento', 'LIKE', '%' . $request->name . '%');
+        }
+
+        // Filtro por cidade
+        if ($request->filled('city')) {
+            $query->whereHas('cidade', function ($q) use ($request) {
+                $q->where('nomeCidade', 'LIKE', '%' . $request->city . '%');
+            });
+        }
+
+        // Filtro por data
+        if ($request->filled('date')) {
+            $query->whereDate('dataEvento', $request->date);
+        }
+
+        $eventos = $query->orderBy('dataEvento', 'asc')->simplePaginate(4);
+
+        // Calcular preço mínimo
+        foreach ($eventos as $evento) {
+            $evento->preco_minimo = $evento->lotes->min('valorIngresso');
+        }
+
+        return view('eventos.busca', compact('eventos'));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
             'nomeEvento' => 'required|string|max:255',
-            'dataEvento' => 'required|date',
+            'dataEvento' => 'required|date|after_or_equal:today',
             'horaEvento' => 'required|date_format:H:i',
             'tipoEvento' => 'required|string|max:100',
             'localEvento' => 'required|string|max:255',
             'descricaoEvento' => 'required|string',
             'idCidade' => 'required|integer|exists:cidade,idCidade',
-            'imagemEvento' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'imagemEvento' => 'nullable|file|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'lotes' => 'required|array|min:1',
             'lotes.*.nomeLote' => 'required|string|max:255',
             'lotes.*.quantidadeTotal' => 'required|integer|min:1',
@@ -101,10 +152,26 @@ class EventoController extends Controller
     {
         $evento = Evento::with(['cidade', 'lotes'])->findOrFail($id);
         
-        // Verificar se o usuário tem permissão (opcional)
-        // if ($evento->organizadora_id != auth('organizadora')->id()) {
-        //     return redirect()->route('eventos.meus')->with('error', 'Você não pode editar este evento.');
-        // }
+        // Verificar se o usuário tem permissão para editar
+        $organizadoraId = auth('organizadora')->id();
+        $clienteId = auth('cliente')->id();
+        
+        $temPermissao = false;
+        
+        // Verificar se é a organizadora que criou o evento
+        if ($organizadoraId && $evento->idOrg == $organizadoraId) {
+            $temPermissao = true;
+        }
+        
+        // Verificar se é o cliente que criou o evento
+        if ($clienteId && $evento->idCliente == $clienteId) {
+            $temPermissao = true;
+        }
+        
+        // Se não tiver permissão, redirecionar
+        if (!$temPermissao) {
+            return redirect()->route('meus.eventos')->with('error', 'Você não tem permissão para editar este evento.');
+        }
         
         $cidades = Cidade::orderBy('nomeCidade')->get();
         
@@ -119,7 +186,7 @@ class EventoController extends Controller
         // Validação
         $validated = $request->validate([
             'nomeEvento' => 'required|string|max:255',
-            'dataEvento' => 'required|date',
+            'dataEvento' => 'required|date|after_or_equal:today',
             'horaEvento' => 'required',
             'tipoEvento' => 'required|string',
             'idCidade' => 'required|exists:cidade,idCidade',
@@ -197,4 +264,104 @@ class EventoController extends Controller
         
         return response()->json(['success' => true]);
     }
+
+    public function ativar($id)
+    {
+        $evento = Evento::findOrFail($id);
+        
+        // Verificar se a data é futura
+        if ($evento->dataEvento < Carbon::now()) {
+            return redirect()->route('meus.eventos')->with('error', 'Não é possível ativar um evento com data passada.');
+        }
+        
+        // Verificar se tem pelo menos um lote
+        if ($evento->lotes()->count() == 0) {
+            return redirect()->route('meus.eventos')->with('error', 'Não é possível ativar: evento sem lotes.');
+        }
+        
+        // Verificar se os lotes estão válidos
+        $lotesInvalidos = $evento->lotes()->where(function($q) {
+            $q->whereNull('nomeLote')
+            ->orWhere('quantidadeTotal', '<=', 0)
+            ->orWhere('valorIngresso', '<', 0);
+        })->exists();
+        
+        if ($lotesInvalidos) {
+            return redirect()->route('meus.eventos')->with('error', 'Não é possível ativar: lotes com dados inválidos.');
+        }
+        
+        $evento->statusEvento = 'A';
+        $evento->save();
+        
+        return redirect()->route('meus.eventos')->with('success', 'Evento ativado com sucesso!');
+    }
+
+    // Cancelar evento
+    public function cancelar($id)
+    {
+        $evento = Evento::findOrFail($id);
+        $statusAntigo = $evento->statusEvento;
+        
+        DB::beginTransaction();
+        
+        try {
+            // Mudar status do evento
+            $evento->statusEvento = 'C';
+            $evento->save();
+            
+            // Buscar todos os ingressos ativos/reservados deste evento
+            $ingressos = Ingresso::whereHas('lote', function($q) use ($evento) {
+                $q->where('idLote', $evento->idEvento);
+            })->whereIn('status', ['A', 'R'])->get();
+            
+            // Reembolsar cada ingresso
+            foreach ($ingressos as $ingresso) {
+                // Buscar o pedido relacionado
+                $pedido = $ingresso->pedido;
+                if ($pedido && $pedido->idCliente) {
+                    // Adicionar valor à carteira do cliente
+                    $carteira = Carteira::firstOrCreate(['idCliente' => $pedido->idCliente]);
+                    $carteira->saldo += $ingresso->valorIngresso;
+                    $carteira->save();
+                }
+                
+                // Cancelar ingresso
+                $ingresso->statusIngresso = 'C';
+                $ingresso->save();
+            }
+            
+            DB::commit();
+            
+            $mensagem = "Evento cancelado. " . $ingressos->count() . " ingressos foram reembolsados.";
+            return redirect()->route('meus.eventos')->with('success', $mensagem);
+            
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Erro ao cancelar evento: ' . $e->getMessage());
+        }
+    }
+
+    public function show($id)
+    {
+        $evento = Evento::with(['cidade', 'lotes'])->findOrFail($id);
+        
+        // Verificar se evento está ativo (ou disponível para visualização)
+        if ($evento->statusEvento != 'A' && $evento->statusEvento != 'E') {
+            return redirect()->route('home')->with('error', 'Evento não disponível.');
+        }
+        
+        // Calcular quantidade disponível por lote
+        foreach ($evento->lotes as $lote) {
+            $vendidos = Ingresso::where('idLote', $lote->idLote)
+                ->where('status', 'A')
+                ->count();
+            $reservados = Ingresso::where('idLote', $lote->idLote)
+                ->where('status', 'R')
+                ->count();
+            $lote->disponivel = $lote->quantidadeTotal - $vendidos - $reservados;
+        }
+        
+        return view('eventos.show', compact('evento'));
+    }
 }
+

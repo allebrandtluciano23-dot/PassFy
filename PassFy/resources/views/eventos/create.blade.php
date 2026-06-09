@@ -7,7 +7,31 @@
 		<div class="cadastro-header">
 			<h1>Criar Evento</h1>
 			<p>Preencha os dados para criar o evento</p>
+			
+			{{-- MENSAGENS DE SUCESSO/ERRO --}}
+			@if(session('success'))
+				<div class="alert alert-success">
+					{{ session('success') }}
+				</div>
+			@endif
+
+			@if(session('error'))
+				<div class="alert alert-error">
+					{{ session('error') }}
+				</div>
+			@endif
+
+			@if($errors->any())
+				<div class="alert alert-error">
+					<ul style="margin: 0; padding-left: 1.2rem;">
+						@foreach($errors->all() as $error)
+							<li>{{ $error }}</li>
+						@endforeach
+					</ul>
+				</div>
+			@endif
 		</div>
+
 		<form id="form-criar-evento" class="form-cadastro" method="POST" action="{{ route('eventos.store') }}" enctype="multipart/form-data">
 			@csrf
 			<div class="input-wrapper-registro" style="grid-column: span 4;" required>
@@ -85,20 +109,6 @@
 				</button>
 			</div>
 			<button type="submit" id="btn-criar-evento" class="btn-cadastro">Criar Evento</button>
-			@if(session('error'))
-				<div class="error-message" style="color: red; margin-top: 1rem;">
-					{{ session('error') }}
-				</div>
-			@endif
-			@if($errors->any())
-				<div class="error-message" style="color: red; margin-top: 1rem;">
-					<ul style="margin: 0; padding-left: 1.2rem;">
-						@foreach($errors->all() as $error)
-							<li>{{ $error }}</li>
-						@endforeach
-					</ul>
-				</div>
-			@endif
 			<div id="registerError" style="display: none; color: red;"></div>
 		</form>
 	</section>

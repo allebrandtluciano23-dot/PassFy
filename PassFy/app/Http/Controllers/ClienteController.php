@@ -31,10 +31,13 @@ class ClienteController extends Controller
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             if ($request->expectsJson()) {
+                // Formatar mensagem de erro mais amigável
+                $errors = $e->errors();
+                $firstError = collect($errors)->flatten()->first();
                 return response()->json([
                     'success' => false,
-                    'message' => 'Erro na validação',
-                    'errors' => $e->errors()
+                    'message' => $firstError,
+                    'errors' => $errors
                 ], 422);
             }
             return back()->withErrors($e->errors())->withInput();
@@ -43,32 +46,24 @@ class ClienteController extends Controller
         try {
             DB::beginTransaction();
 
-            // Criar cliente
             $cliente = Cliente::create([
                 'idCidade' => $validated['city'],
                 'nomeCliente' => $validated['name'],
                 'emailCliente' => $validated['email'],
-                'senhaCliente' => $validated['password'],
+                'senhaCliente' => bcrypt($validated['password']),
                 'cpfCliente' => $validated['cpf'],
                 'cepCliente' => $validated['cep'],
                 'enderecoCliente' => $validated['address'],
                 'telefoneCliente' => $validated['phone'],
             ]);
 
-            // Criar carrinho para o cliente
-            Carrinho::create([
-                'idCliente' => $cliente->idCliente,
-            ]);
-
-            // Criar carteira digital com saldo inicial de R$ 0,00
+            Carrinho::create(['idCliente' => $cliente->idCliente]);
             CarteiraDigital::create([
                 'idCliente' => $cliente->idCliente,
                 'saldo' => 0.00,
             ]);
 
             DB::commit();
-
-            // Fazer login automático
             Auth::guard('cliente')->login($cliente);
 
             if ($request->expectsJson()) {
@@ -80,16 +75,17 @@ class ClienteController extends Controller
             }
 
             return redirect()->route('home')->with('success', 'Cadastro realizado com sucesso!');
+            
         } catch (\Exception $e) {
             DB::rollBack();
 
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Erro ao registrar: ' . $e->getMessage()
+                    'message' => 'Erro ao cadastrar: ' . $e->getMessage()
                 ], 500);
             }
-            return back()->withErrors(['error' => 'Erro ao registrar: ' . $e->getMessage()])->withInput();
+            return back()->withErrors(['error' => 'Erro ao cadastrar: ' . $e->getMessage()])->withInput();
         }
     }
 

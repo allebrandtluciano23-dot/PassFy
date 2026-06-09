@@ -40,10 +40,35 @@ function esconderErro(elementId) {
     if (el) el.style.display = 'none';
 }
 
+function mostrarErroGenerica(elementId, mensagem) {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    el.textContent = mensagem;
+    el.classList.add('alert', 'alert-error');
+    el.style.display = 'block';
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    setTimeout(() => {
+        el.classList.remove('alert-error');
+    }, 5000);
+}
+
+function parseRegisterError(error) {
+    if (error?.data?.message) {
+        return error.data.message;
+    }
+    const errors = error?.data?.errors;
+    if (errors) {
+        const firstError = Object.values(errors)[0];
+        return Array.isArray(firstError) ? firstError[0] : firstError;
+    }
+    return 'Erro interno. Tente novamente.';
+}
+
 // ---------------------------------- Modal de Login ---------------------------------
 const modal = document.getElementById('modal-login');
 const btnLogin = document.getElementById('btn-login');
 const visitorCriarEvento = document.getElementById('visitor-criar-evento');
+const footerCriarEvento = document.getElementById('footer-criar-evento');
 const closeBtn = document.querySelector('.close');
 
 function abrirModal(e) {
@@ -55,8 +80,33 @@ function fecharModal() {
     if (modal) modal.classList.remove('open');
 }
 
+// Verificar se está logado via meta tag (adicione no layout)
+function isLoggedIn() {
+    const loggedIn = document.querySelector('meta[name="user-logged-in"]');
+    return loggedIn && loggedIn.getAttribute('content') === 'true';
+}
+
+function redirecionarOuAbrirModal(e, destino) {
+    e.preventDefault();
+    if (isLoggedIn()) {
+        window.location.href = destino;
+    } else {
+        abrirModal(e);
+    }
+}
+
+// Eventos
 if (btnLogin && modal) btnLogin.addEventListener('click', abrirModal);
-if (visitorCriarEvento && modal) visitorCriarEvento.addEventListener('click', abrirModal);
+if (visitorCriarEvento && modal) {
+    visitorCriarEvento.addEventListener('click', (e) => {
+        redirecionarOuAbrirModal(e, '/create/evento');
+    });
+}
+if (footerCriarEvento && modal) {
+    footerCriarEvento.addEventListener('click', (e) => {
+        redirecionarOuAbrirModal(e, '/create/evento');
+    });
+}
 if (closeBtn && modal) closeBtn.addEventListener('click', fecharModal);
 window.addEventListener('click', (e) => { if (modal && e.target === modal) fecharModal(); });
 
@@ -147,20 +197,32 @@ function initCadastro() {
     formCadastro.addEventListener('submit', function(e) {
         e.preventDefault();
 
+        // Validar CEP
         const cepValue = cepInput ? cepInput.value.trim() : '';
         if (!/^\d{8}$/.test(cepValue)) {
-            mostrarErro('cep-status', 'Digite um CEP válido (8 dígitos).', 'red');
+            const registerError = document.getElementById('registerError');
+            registerError.textContent = 'Digite um CEP válido (8 dígitos).';
+            registerError.classList.add('alert', 'alert-error');
+            registerError.style.display = 'block';
             return;
         }
 
+        // Validar UF e cidade selecionadas
         const ufSelect = document.querySelector('select[name="state"]');
         const cidadeSelect = document.querySelector('select[name="city"]');
-        if (!ufSelect?.value || !cidadeSelect?.value) {
-            mostrarErro('cep-status', 'Selecione a UF e a cidade (ou aguarde o carregamento do CEP).', 'red');
+        const ufSelecionada = ufSelect ? ufSelect.value : '';
+        const cidadeSelecionada = cidadeSelect ? cidadeSelect.value : '';
+        
+        if (!ufSelecionada || !cidadeSelecionada) {
+            const registerError = document.getElementById('registerError');
+            registerError.textContent = 'Selecione a UF e a cidade (ou aguarde o carregamento do CEP).';
+            registerError.classList.add('alert', 'alert-error');
+            registerError.style.display = 'block';
             return;
         }
 
         const formData = new FormData(formCadastro);
+        
         fetch(formCadastro.action, {
             method: 'POST',
             headers: {
@@ -170,15 +232,26 @@ function initCadastro() {
             },
             body: formData
         })
-        .then(response => response.json())
+        .then(response => {
+            // Verificar se a resposta é OK
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw { status: response.status, data };
+                });
+            }
+            return response.json();
+        })
         .then(data => {
             if (data.success) {
                 window.location.href = data.redirect || '/';
             } else {
-                mostrarErro('registerError', data.message || 'Erro ao cadastrar.');
+                mostrarErroGenerica('registerError', data.message || 'Erro ao cadastrar.');
             }
         })
-        .catch(() => mostrarErro('registerError', 'Erro interno. Tente novamente.'));
+        .catch(error => {
+            console.error('Erro:', error);
+            mostrarErroGenerica('registerError', parseRegisterError(error));
+        });
     });
 
     if (cepInput && cepBtn) {
@@ -355,7 +428,7 @@ function getLoteTemplate(index, loteData = null) {
                 </div>
                 <div class="lote-field">
                     <label>Valor do Ingresso (R$) *</label>
-                    <input type="number" name="lotes[${loteData?.idLote || index}][valorIngresso]" value="${loteData?.valorIngresso || ''}" placeholder="0,00" step="0.50" min="0" required>
+                    <input type="number" name="lotes[${loteData?.idLote || index}][valorIngresso]" value="${loteData?.valorIngresso || ''}" placeholder="0,00" step="0.01" min="0" required>
                 </div>
             </div>
         </div>
@@ -418,4 +491,64 @@ document.addEventListener('DOMContentLoaded', function() {
     initUfCidade();
     initUploadImagem();
     initLotes();
+});
+
+// ------------------------------Controle de quantidade para compra--------------------------
+document.querySelectorAll('.lote-item').forEach(loteItem => {
+    const input = loteItem.querySelector('.quantidade-input');
+    const btnDiminuir = loteItem.querySelector('.btn-diminuir');
+    const btnAumentar = loteItem.querySelector('.btn-aumentar');
+    const btnComprar = loteItem.querySelector('.btn-comprar');
+    const disponivel = parseInt(input.getAttribute('max'));
+    
+    btnDiminuir.addEventListener('click', () => {
+        let valor = parseInt(input.value);
+        if (valor > 0) {
+            input.value = valor - 1;
+        }
+    });
+    
+    btnAumentar.addEventListener('click', () => {
+        let valor = parseInt(input.value);
+        if (valor < disponivel) {
+            input.value = valor + 1;
+        }
+    });
+    
+    input.addEventListener('change', () => {
+        let valor = parseInt(input.value);
+        if (isNaN(valor)) valor = 0;
+        if (valor > disponivel) valor = disponivel;
+        if (valor < 0) valor = 0;
+        input.value = valor;
+    });
+    
+    btnComprar.addEventListener('click', () => {
+        const quantidade = parseInt(input.value);
+        if (quantidade <= 0) {
+            alert('Selecione pelo menos 1 ingresso');
+            return;
+        }
+        
+        const loteId = loteItem.dataset.loteId;
+        const preco = parseFloat(loteItem.dataset.preco);
+        
+        // Redirecionar para carrinho ou processar compra
+        window.location.href = `/carrinho/adicionar?lote=${loteId}&quantidade=${quantidade}`;
+    });
+});
+
+// -------------  Card clicável para detalhes do evento na página meus eventos --------------
+document.querySelectorAll('.card-evento').forEach(card => {
+    const url = card.dataset.url;
+    const botoes = card.querySelectorAll('a, button');
+    
+    card.addEventListener('click', (e) => {
+        // Se clicou em botão ou link, não redireciona
+        if (e.target.closest('a, button')) return;
+        window.location.href = url;
+    });
+    
+    // Estilo para indicar que o card é clicável
+    card.style.cursor = 'pointer';
 });

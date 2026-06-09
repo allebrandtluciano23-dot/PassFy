@@ -10,6 +10,20 @@
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"/>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=close" />
+
+    @auth('cliente')
+        <meta name="user-logged-in" content="true">
+        <meta name="user-type" content="cliente">
+    @endauth
+
+    @auth('organizadora')
+        <meta name="user-logged-in" content="true">
+        <meta name="user-type" content="organizadora">
+    @endauth
+
+    @guest
+        <meta name="user-logged-in" content="false">
+    @endguest
 </head>
 <body>
 

@@ -7,30 +7,61 @@
 		<div class="cadastro-header">
 			<h1>Cadastro</h1>
 			<p>Preencha os dados para realizar o cadastro</p>
+			
+			{{-- MENSAGENS DE SUCESSO/ERRO --}}
+			@if(session('success'))
+				<div class="alert alert-success">
+					{{ session('success') }}
+				</div>
+			@endif
+
+			@if(session('error'))
+				<div class="alert alert-error">
+					{{ session('error') }}
+				</div>
+			@endif
+
+			@if($errors->any())
+				<div class="alert alert-error">
+					<ul style="margin: 0; padding-left: 1.2rem;">
+						@foreach($errors->all() as $error)
+							<li>{{ $error }}</li>
+						@endforeach
+					</ul>
+				</div>
+			@endif
+			<div id="registerError" class="alert alert-error" style="display: none;"></div>
 		</div>
+
 		<div class="tipo-cadastro" id="tipo-cadastro">
 			<button type="button" class="register-type-btn type-btn active" data-type="cliente">Sou Cliente</button>
 			<button type="button" class="register-type-btn type-btn" data-type="organizadora">Sou Organizadora</button>
 		</div>
+
 		<form id="form-registrar-cliente" class="form-cadastro" method="POST" action="{{ route('register.cliente') }}">
 			@csrf
+			
 			<div class="input-wrapper-registro" style="grid-column: span 4;" required>
 				<label>Nome Completo</label>
 				<input type="text" name="name" placeholder="Nome completo" required>
 			</div>
-			<div class="input-wrapper-registro" id="input-dinamico-cadastro" style="grid-column: span 2;" required>
+
+			<div id="input-dinamico-cadastro" class="input-wrapper-registro" style="grid-column: span 2;" required>
 				<!-- O input de CPF/CNPJ vai aparecer aqui dinamicamente -->
 			</div>
+
 			<div class="input-wrapper-registro" style="grid-column: 3 / 5;" required>
-			<label>Email</label>
-				<input type="text" name="email" placeholder="exemplo@email.com" required>
+				<label>Email</label>
+				<input type="email" name="email" placeholder="exemplo@email.com" required>
 			</div>
+
 			<div class="input-wrapper-registro" required>
 				<label>CEP</label>
 				<input type="text" name="cep" placeholder="Formato: 12345678" maxlength="8" pattern="\d{8}" required>
 				<button type="button" id="btn-buscar-cep" class="btn-cadastro" style="height: 45px;">Buscar CEP</button>
 				<small id="cep-status" style="display: none; margin-top: 5px;"></small>
 			</div>
+
 			<div class="input-wrapper-registro" required>
 				<label>UF</label>
 				<select id="uf_select" name="state" required>
@@ -46,30 +77,35 @@
 					<option value="SP">SP</option><option value="SE">SE</option><option value="TO">TO</option>
 				</select>
 			</div>
+
 			<div class="input-wrapper-registro" style="grid-column: span 2;" required>
 				<label>Cidade</label>
 				<select id="cidade_select" name="city" required disabled>
 					<option value="">Selecione uma UF primeiro</option>
 				</select>
 			</div>
+
 			<div class="input-wrapper-registro" style="grid-column: span 4;" required>
 				<label>Endereço</label>
-				<input type="text" name="address" placeholder="Endereço">
+				<input type="text" name="address" placeholder="Endereço" required>
 			</div>
+
 			<div class="input-wrapper-registro" style="grid-column: span 2;" required>
 				<label>Telefone</label>
-				<input type="text" name="phone" placeholder="Telefone">
+				<input type="text" name="phone" placeholder="Telefone" required>
 			</div>
+
 			<div class="input-wrapper-registro" style="grid-row: 6; grid-column: span 2;" required>
 				<label>Senha</label>
-				<input type="password" name="password" placeholder="Senha">
+				<input type="password" name="password" placeholder="Senha" required>
 			</div>
+
 			<div class="input-wrapper-registro" style="grid-row: 6; grid-column: span 2;" required>
 				<label>Confirmar Senha</label>
-				<input type="password" name="passwordConfirmation" placeholder="Confirmar Senha">
+				<input type="password" name="passwordConfirmation" placeholder="Confirmar Senha" required>
 			</div>
+
 			<button type="submit" id="btn-cadastrar" class="btn-cadastro">Cadastrar</button>
-			<div id="registerError" style="display: none; color: red;"></div>
 		</form>
 	</section>
 @endsection
