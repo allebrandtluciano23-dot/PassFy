@@ -7,7 +7,7 @@
         <div class="descubra">
             <h3>Descubra</h3>
             <ul>
-                <li><a href="{{ route('home') }}">Eventos</a></li>
+                <li><a href="{{ route('eventos.buscar')}}">Eventos</a></li>
                 <li><a href="#">Cidades</a></li>
                 <li><a href="#">Categorias</a></li>
                 <li><a href="#">Blog</a></li>

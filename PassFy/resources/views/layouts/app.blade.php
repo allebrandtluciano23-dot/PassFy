@@ -43,6 +43,16 @@
 
     {{-- Scripts --}}
     <script src="{{ asset('js/app.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            @if(session('open_modal'))
+                const modal = document.getElementById('modal-login');
+                if (modal) {
+                    modal.classList.add('open');
+                }
+            @endif
+        });
+    </script>
     @stack('scripts')
 </body>
 </html>

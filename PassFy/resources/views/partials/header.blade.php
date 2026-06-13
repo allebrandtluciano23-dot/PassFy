@@ -10,10 +10,10 @@
 					<a href="{{ route('meus.eventos') }}"><i class="fa-regular fa-calendar"></i> Meus Eventos</a>
 				</li>
 				<li>
-					<a href="#"><i class="fa-solid fa-shopping-cart"></i> Carrinho</a>
+					<a href="{{ route('carrinho.index') }}"><i class="fa-solid fa-shopping-cart"></i> Carrinho</a>
 				</li>
 				<li>
-					<a href="#"><i class="fa-solid fa-ticket"></i> Meus Ingressos</a>
+					<a href="{{ route('meus.ingressos') }}"><i class="fa-solid fa-ticket"></i> Meus Ingressos</a>
 				</li>
 				<li>
 					<a href="#"><i class="fa-solid fa-wallet"></i> Carteira (R$ {{ number_format(Auth::guard('cliente')->user()->carteiraDigital->saldo ?? 0, 2, ',', '.') }})</a>
@@ -79,7 +79,7 @@
 					<a href="#" id="visitor-criar-evento"><i class="fa-regular fa-square-plus"></i> Criar Eventos</a>
 				</li>
 				<li>
-					<a href="#"><i class="fa-regular fa-calendar"></i> Eventos</a>
+					<a href="{{ route('eventos.buscar')}}"><i class="fa-regular fa-calendar"></i> Eventos</a>
 				</li>
 				<li>
 					<a href="#" id="btn-login"><i class="fa-solid fa-user-plus"></i> Entrar</a>

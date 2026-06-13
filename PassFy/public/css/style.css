@@ -991,7 +991,7 @@ footer {
 	justify-content: start;
 }
 .card-evento {
-    width: 350px;
+    width: 310px;
     height: auto;
     display: flex;
     flex-direction: column;
@@ -1210,6 +1210,1013 @@ footer {
 .card-evento:hover{
 	box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
 	transform: translateY(-2px);
+}
+
+/*--------------------CARD DE INGRESSOS--------------------*/
+/* ==========================================
+   PÁGINA DO CARRINHO
+   ========================================== */
+
+.carrinho-section {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.carrinho-section h1 {
+    font-size: 28px;
+    color: #333;
+    margin-bottom: 30px;
+    position: relative;
+}
+
+.carrinho-section h1::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 3px;
+    background: #8B5CF6;
+    margin-top: 8px;
+    border-radius: 3px;
+}
+
+/* Itens do carrinho */
+.carrinho-itens {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    margin-bottom: 30px;
+}
+
+.carrinho-item {
+    display: grid;
+    grid-template-columns: 100px 1fr auto auto auto auto;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.3s ease;
+}
+
+.carrinho-item:hover {
+    background-color: #fafafa;
+}
+
+.carrinho-item:last-child {
+    border-bottom: none;
+}
+
+/* Imagem do evento */
+.carrinho-item img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+/* Informações do item */
+.item-info h3 {
+    font-size: 16px;
+    margin: 0 0 8px 0;
+    color: #333;
+}
+
+.item-info p {
+    font-size: 13px;
+    color: #666;
+    margin: 4px 0;
+}
+
+.item-info p i {
+    margin-right: 6px;
+    color: #8B5CF6;
+}
+
+/* Preço unitário */
+.item-preco p {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+}
+
+/* Controle de quantidade */
+.item-quantidade {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.item-quantidade button {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    background: white;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.item-quantidade button:hover {
+    background-color: #8B5CF6;
+    color: white;
+    border-color: #8B5CF6;
+}
+
+.item-quantidade input {
+    width: 50px;
+    height: 32px;
+    text-align: center;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+/* Subtotal */
+.item-subtotal p {
+    font-size: 16px;
+    font-weight: 700;
+    color: #8B5CF6;
+}
+
+/* Botão remover */
+.btn-remover {
+    background: none;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-remover:hover {
+    background-color: #fee2e2;
+    color: #b91c1c;
+}
+
+/* Resumo do pedido */
+.carrinho-resumo {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    max-width: 400px;
+    margin-left: auto;
+}
+
+.carrinho-resumo h3 {
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.carrinho-resumo p {
+    display: flex;
+    justify-content: space-between;
+    font-size: 16px;
+    margin: 12px 0;
+}
+
+.carrinho-resumo p strong {
+    font-size: 20px;
+    color: #8B5CF6;
+}
+
+.btn-finalizar {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    background-color: #8B5CF6;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    margin-top: 20px;
+}
+
+.btn-finalizar:hover {
+    cursor: pointer;
+    background-color: #7C3AED;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+/* Carrinho vazio */
+.carrinho-vazio {
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border-radius: 16px;
+    color: #666;
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+.btn-voltar {
+    display: inline-block;
+    padding: 12px 24px;
+    background-color: #6c757d;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-voltar:hover {
+    background-color: #5a6268;
+    transform: translateY(-2px);
+}
+
+/* Responsividade */
+@media (max-width: 900px) {
+    .carrinho-item {
+        grid-template-columns: 80px 1fr;
+        gap: 15px;
+    }
+    
+    .carrinho-item .item-preco,
+    .carrinho-item .item-quantidade,
+    .carrinho-item .item-subtotal,
+    .carrinho-item .btn-remover {
+        grid-column: span 2;
+        justify-self: start;
+    }
+    
+    .carrinho-item {
+        position: relative;
+    }
+    
+    .btn-remover {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .carrinho-section {
+        padding: 0 15px;
+    }
+    
+    .carrinho-item {
+        padding: 15px;
+    }
+    
+    .carrinho-resumo {
+        max-width: 100%;
+    }
+}
+
+/* --------------------------------MEUS INGRESSOS---------------------------- */
+
+.reservados-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border-radius: 16px;
+    padding: 16px 24px;
+    margin-bottom: 30px;
+    border-left: 5px solid #f59e0b;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.reservados-info {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.reservados-info i {
+    font-size: 24px;
+    color: #f59e0b;
+}
+
+.reservados-info span {
+    font-size: 14px;
+    color: #78350f;
+    font-weight: 500;
+}
+
+.reservados-timer {
+    background: rgba(245, 158, 11, 0.2);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-family: monospace;
+    font-size: 13px;
+}
+
+.reservados-timer i {
+    font-size: 12px;
+    margin-right: 4px;
+}
+
+.btn-finalizar-todos {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: #f59e0b;
+    color: white;
+    text-decoration: none;
+    border-radius: 40px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.btn-finalizar-todos i {
+    font-size: 16px;
+}
+
+.btn-finalizar-todos:hover {
+    background: #d97706;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+/* Animação de pulsar para chamar atenção */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    50% {
+        transform: scale(1.01);
+        box-shadow: 0 4px 16px rgba(245, 158, 11, 0.3);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+}
+
+.reservados-banner {
+    animation: pulse 1.5s ease-in-out 2;
+}
+
+/* Responsividade */
+@media (max-width: 640px) {
+    .reservados-banner {
+        flex-direction: column;
+        text-align: center;
+        padding: 16px;
+    }
+    
+    .reservados-info {
+        justify-content: center;
+    }
+    
+    .btn-finalizar-todos {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+.meus-ingressos {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.meus-ingressos-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.meus-ingressos-header h1 {
+    font-size: 28px;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.meus-ingressos-header p {
+    color: #666;
+}
+
+.ingressos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 30px;
+}
+
+.ingresso-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+}
+
+.ingresso-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+
+.ingresso-status {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 10;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    color: white;
+    backdrop-filter: blur(4px);
+}
+
+.status-reservado {
+    background-color: #f59e0b;
+}
+
+.status-ativo {
+    background-color: #28a745;
+}
+
+.status-usado {
+    background-color: #6c757d;
+}
+
+.status-cancelado {
+    background-color: #dc3545;
+}
+
+.ingresso-imagem {
+    height: 160px;
+    overflow: hidden;
+}
+
+.ingresso-imagem img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.ingresso-card:hover .ingresso-imagem img {
+    transform: scale(1.05);
+}
+
+.ingresso-conteudo {
+    padding: 20px;
+}
+
+.ingresso-conteudo h2 {
+    font-size: 18px;
+    margin: 0 0 15px 0;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ingresso-info {
+    margin-bottom: 15px;
+}
+
+.ingresso-info p {
+    margin: 8px 0;
+    font-size: 13px;
+    color: #666;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ingresso-info i {
+    width: 18px;
+    color: #8B5CF6;
+}
+
+.ingresso-codigo {
+    background: #f8f9fa;
+    padding: 10px 12px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    font-size: 12px;
+    font-family: monospace;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    word-break: break-all;
+}
+
+.ingresso-codigo i {
+    color: #8B5CF6;
+    font-size: 18px;
+}
+
+.ingresso-acoes {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.btn-pagar {
+    flex: 1;
+    padding: 10px 16px;
+    background: #8B5CF6;
+    color: white;
+    text-decoration: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.btn-pagar:hover {
+    background: #7C3AED;
+    transform: translateY(-2px);
+}
+
+.btn-cancelar {
+    flex: 1;
+    padding: 10px 16px;
+    background: #fee2e2;
+    color: #dc3545;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-cancelar:hover {
+    background: #dc3545;
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* Nenhum ingresso */
+.nenhum-ingresso {
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border-radius: 20px;
+}
+
+.nenhum-ingresso i {
+    font-size: 64px;
+    color: #ccc;
+    margin-bottom: 20px;
+}
+
+.nenhum-ingresso p {
+    font-size: 18px;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.btn-explorar {
+    display: inline-block;
+    padding: 12px 24px;
+    background: #8B5CF6;
+    color: white;
+    text-decoration: none;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-explorar:hover {
+    background: #7C3AED;
+    transform: translateY(-2px);
+}
+
+/* Paginação */
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 40px;
+    gap: 8px;
+}
+
+.pagination .page-link {
+    padding: 8px 12px;
+    background: #f5f5f5;
+    color: #333;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.pagination .page-link:hover {
+    background: #8B5CF6;
+    color: white;
+}
+
+.pagination .active .page-link {
+    background: #8B5CF6;
+    color: white;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .ingressos-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .ingresso-acoes {
+        flex-direction: column;
+    }
+}
+
+/* ----------------------------PÁGINA DE CHECKOUT ------------------------------ */
+
+.checkout-section {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.checkout-section h1 {
+    font-size: 28px;
+    color: #333;
+    margin-bottom: 30px;
+    position: relative;
+}
+
+.checkout-section h1::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 3px;
+    background: #8B5CF6;
+    margin-top: 8px;
+    border-radius: 3px;
+}
+
+.checkout-container {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 40px;
+}
+
+/* Resumo do pedido */
+.checkout-resumo {
+    background: white;
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.checkout-resumo h2 {
+    font-size: 20px;
+    color: #333;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.checkout-resumo h2 i {
+    color: #8B5CF6;
+    margin-right: 10px;
+}
+
+.resumo-itens {
+    max-height: 400px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+}
+
+.resumo-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 15px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.resumo-item:last-child {
+    border-bottom: none;
+}
+
+.resumo-item-info h3 {
+    font-size: 15px;
+    margin: 0 0 8px 0;
+    color: #333;
+}
+
+.resumo-item-info p {
+    font-size: 12px;
+    color: #666;
+    margin: 4px 0;
+}
+
+.resumo-item-info i {
+    color: #8B5CF6;
+    width: 16px;
+    margin-right: 4px;
+}
+
+.resumo-item-preco {
+    font-weight: 700;
+    color: #8B5CF6;
+    white-space: nowrap;
+}
+
+.resumo-total {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 10px;
+}
+
+.total-linha {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    font-size: 14px;
+    color: #666;
+}
+
+.total-linha.final {
+    font-size: 18px;
+    font-weight: 700;
+    color: #333;
+    border-top: 1px solid #ddd;
+    margin-top: 8px;
+    padding-top: 12px;
+}
+
+.total-linha.final span:last-child {
+    color: #8B5CF6;
+}
+
+/* Formas de pagamento */
+.checkout-pagamento {
+    background: white;
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.checkout-pagamento h2 {
+    font-size: 20px;
+    color: #333;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.checkout-pagamento h2 i {
+    color: #8B5CF6;
+    margin-right: 10px;
+}
+
+.pagamento-opcoes {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+}
+
+.pagamento-opcao {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 15px;
+    background: #f8f9fa;
+    border: 2px solid transparent;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.pagamento-opcao:hover {
+    background: #f3e8ff;
+}
+
+.pagamento-opcao input {
+    display: none;
+}
+
+.pagamento-opcao.active,
+.pagamento-opcao:has(input:checked) {
+    background: #f3e8ff;
+    border-color: #8B5CF6;
+}
+
+.pagamento-opcao i {
+    font-size: 24px;
+    color: #8B5CF6;
+}
+
+.pagamento-opcao span {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+}
+
+/* Campos de pagamento */
+.pagamento-campos {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.campo {
+    margin-bottom: 15px;
+}
+
+.campo label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #555;
+}
+
+.campo input,
+.campo select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.campo input:focus,
+.campo select:focus {
+    outline: none;
+    border-color: #8B5CF6;
+    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+}
+
+.campo-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+/* PIX */
+.pix-info {
+    text-align: center;
+}
+
+.pix-info i {
+    font-size: 48px;
+    color: #8B5CF6;
+    margin-bottom: 15px;
+}
+
+.pix-qrcode {
+    margin: 20px 0;
+}
+
+.pix-qrcode img {
+    width: 150px;
+    height: 150px;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 10px;
+}
+
+.pix-codigo {
+    background: #f8f9fa;
+    padding: 12px;
+    border-radius: 10px;
+    margin-top: 15px;
+}
+
+.pix-codigo p {
+    margin-bottom: 10px;
+    font-size: 12px;
+    word-break: break-all;
+}
+
+.btn-copiar {
+    padding: 8px 16px;
+    background: #8B5CF6;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.3s ease;
+}
+
+.btn-copiar:hover {
+    background: #7C3AED;
+}
+
+/* Carteira Digital */
+.carteira-info {
+    text-align: center;
+    padding: 20px;
+}
+
+.carteira-info p {
+    margin-bottom: 15px;
+}
+
+.carteira-info strong {
+    color: #8B5CF6;
+    font-size: 24px;
+}
+
+.carteira-insuficiente {
+    color: #dc3545;
+    margin-top: 15px;
+}
+
+.btn-carteira {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 10px 20px;
+    background: #6c757d;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.btn-carteira:hover {
+    background: #5a6268;
+}
+
+/* Botão finalizar */
+.btn-finalizar-pedido {
+    width: 100%;
+    padding: 16px;
+    background: #8B5CF6;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 25px;
+}
+
+.btn-finalizar-pedido i {
+    margin-right: 8px;
+}
+
+.btn-finalizar-pedido:hover {
+    background: #7C3AED;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+/* Responsividade */
+@media (max-width: 800px) {
+    .checkout-container {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+    
+    .pagamento-opcoes {
+        flex-direction: column;
+    }
+    
+    .pagamento-opcao {
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 480px) {
+    .checkout-section {
+        padding: 0 15px;
+    }
+    
+    .checkout-resumo,
+    .checkout-pagamento {
+        padding: 16px;
+    }
+    
+    .campo-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
 }
 
 /* ----------------------------Página de detalhes do evento----------------------------- */

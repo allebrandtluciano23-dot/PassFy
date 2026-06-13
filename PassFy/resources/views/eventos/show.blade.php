@@ -39,18 +39,22 @@
             <h2><i class="fa-solid fa-ticket"></i> Ingressos</h2>
             <div class="lotes-grid">
                 @foreach($evento->lotes as $lote)
-                    <div class="lote-item" data-lote-id="{{ $lote->idLote }}" data-preco="{{ $lote->valorIngresso }}" data-disponivel="{{ $lote->disponivel }}">
+                    @php
+                        $vendidos = $lote->ingressos()->whereIn('status', ['A', 'R'])->count();
+                        $disponivel = $lote->quantidadeTotal - $vendidos;
+                    @endphp
+                    <div class="lote-item" data-lote-id="{{ $lote->idLote }}" data-preco="{{ $lote->valorIngresso }}" data-disponivel="{{ $disponivel }}">
                         <div class="lote-info">
                             <h3>{{ $lote->nomeLote }}</h3>
-                            <p>Disponíveis: <span class="lote-disponivel">{{ $lote->disponivel }}</span> ingressos</p>
+                            <p>Disponíveis: <span class="lote-disponivel">{{ $disponivel }}</span> ingressos</p>
                         </div>
                         <div class="lote-preco">
                             R$ {{ number_format($lote->valorIngresso, 2, ',', '.') }}
                         </div>
                         <div class="lote-quantidade">
-                            <button type="button" class="btn-diminuir">-</button>
-                            <input type="number" class="quantidade-input" value="0" min="0" max="{{ $lote->disponivel }}" step="1">
-                            <button type="button" class="btn-aumentar">+</button>
+                            <button type="button" class="btn-diminuir-show">-</button>
+                            <input type="number" class="quantidade-input" value="0" min="0" max="{{ $disponivel }}" step="1">
+                            <button type="button" class="btn-aumentar-show">+</button>
                         </div>
                         <button type="button" class="btn-comprar">Comprar</button>
                     </div>

@@ -7,6 +7,10 @@ use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\EventoController;
 use App\Http\Controllers\CidadeController;
+use App\Http\Controllers\CarrinhoController;
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\PagamentoController;
+use App\Http\Controllers\CarteiraController;
 use App\Http\Controllers\Auth\LoginController;
 
 // Rotas de login
@@ -23,30 +27,57 @@ Route::post('/register/organizadora', [OrganizadoraController::class, 'register'
 Route::post('/register/usuario', [UsuarioController::class, 'register'])->name('register.usuario.store');
 
 Route::middleware(['auth:cliente,organizadora'])->group(function () {
-    Route::post('/create/evento', [EventoController::class, 'store'])->name('eventos.store');
-    Route::get('/eventos/{id}/edit', [EventoController::class, 'edit'])->name('eventos.edit');
-    Route::put('/eventos/{id}', [EventoController::class, 'update'])->name('eventos.update');
-    Route::post('/eventos/{id}/ativar', [EventoController::class, 'ativar'])->name('eventos.ativar');
-    Route::post('/eventos/{id}/cancelar', [EventoController::class, 'cancelar'])->name('eventos.cancelar');
-    Route::get('/meus-eventos', [EventoController::class, 'meusEventos'])->name('meus.eventos');
 
+    // Criar evento
     Route::get('/create/evento', function () {
         return view('eventos.create');
     })->name('eventos.create');
+    
+    Route::post('/create/evento', [EventoController::class, 'store'])->name('eventos.store');
 
-    Route::get('/meus/eventos', function () {
-        return redirect()->route('meus.eventos');
-    });
+    // Editar evento
+    Route::get('/eventos/{id}/edit', [EventoController::class, 'edit'])->name('eventos.edit');
+    Route::put('/eventos/{id}', [EventoController::class, 'update'])->name('eventos.update');
+
+    // Gerenciar status
+    Route::post('/eventos/{id}/ativar', [EventoController::class, 'ativar'])->name('eventos.ativar');
+    Route::post('/eventos/{id}/cancelar', [EventoController::class, 'cancelar'])->name('eventos.cancelar');
+
+    // Gerenciar lotes
+    Route::delete('/lotes/{id}', [EventoController::class, 'destroyLote'])->name('lotes.destroy');
+
+    // Visualizar meus eventos
+    Route::get('/meus-eventos', [EventoController::class, 'meusEventos'])->name('meus.eventos');
 });
 
 Route::middleware(['auth:cliente'])->group(function () {
-    Route::get('/carrinho/adicionar', [CarrinhoController::class, 'adicionar'])->name('carrinho.adicionar');
+    
+    // Perfil e ingressos
+    Route::get('/meus-ingressos', [ClienteController::class, 'meusIngressos'])->name('meus.ingressos');
+    Route::post('/ingressos/{id}/cancelar', [ClienteController::class, 'cancelarIngresso'])->name('ingressos.cancelar');
+
+    // Carrinho
+    Route::post('/carrinho/adicionar', [CarrinhoController::class, 'adicionar'])->name('carrinho.adicionar');
+    Route::get('/carrinho', [CarrinhoController::class, 'index'])->name('carrinho.index');
+    Route::delete('/carrinho/remover/{id}', [CarrinhoController::class, 'remover'])->name('carrinho.remover');
+    Route::put('/carrinho/atualizar/{id}', [CarrinhoController::class, 'atualizar'])->name('carrinho.atualizar');
+    Route::post('/carrinho/finalizar', [CarrinhoController::class, 'finalizar'])->name('carrinho.finalizar');
+    
+    // Checkout e pagamento
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+    Route::post('/checkout/pagar', [CheckoutController::class, 'pagar'])->name('checkout.pagar');
+    Route::post('/pagamento/simular', [PagamentoController::class, 'simular'])->name('pagamento.simular');
+    Route::get('/pagamento/{id}/finalizar', [PagamentoController::class, 'finalizar'])->name('pagamento.finalizar');
+    Route::get('/pagamento/finalizar/todos', [PagamentoController::class, 'finalizarTodos'])->name('pagamento.finalizar.todos');
+
+    // Carteira digital
+    Route::get('/carteira', [CarteiraController::class, 'index'])->name('carteira.index');
+    Route::post('/carteira/depositar', [CarteiraController::class, 'depositar'])->name('carteira.depositar');
 });
 
+// Listar eventos
 Route::get('/evento/{id}', [EventoController::class, 'show'])->name('evento.show');
 Route::get('/buscar-eventos', [EventoController::class, 'buscar'])->name('eventos.buscar');
-
-Route::delete('/lotes/{id}', [EventoController::class, 'destroyLote'])->name('lotes.destroy');
 
 // Rota para buscar CEP
 Route::get('/api/cidade/buscar-por-cep', [CidadeController::class, 'buscarPorCep'])->name('cidade.buscar-por-cep');
@@ -72,3 +103,8 @@ Route::get('/register/organizadora', function () {
 Route::get('/register/usuario', function () {
     return view('auth.register');
 })->name('register.usuario');
+
+// Rota de login padrão
+Route::get('/login', function () {
+    return redirect('/')->with('open_modal', true);
+})->name('login');

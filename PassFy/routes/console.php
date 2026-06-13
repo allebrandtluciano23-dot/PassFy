@@ -2,4 +2,4 @@
 
 use Illuminate\Support\Facades\Schedule;
 
-Schedule::command('events:update-status')->hourly();
+Schedule::command('events:update-status')->everyMinute();

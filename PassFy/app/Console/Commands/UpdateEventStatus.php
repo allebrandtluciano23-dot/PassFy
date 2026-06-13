@@ -53,6 +53,20 @@ class UpdateEventStatus extends Command
             $this->info("Evento '{$evento->nomeEvento}' está esgotado.");
         }
 
+        // 3. Cancelar reservas antigas (status 'R') com mais de 30 minutos
+        $limite = Carbon::now()->subMinutes(30);
+        $ingressosParaCancelar = Ingresso::where('status', 'R')
+            ->where('created_at', '<', $limite)
+            ->get();
+
+        if ($ingressosParaCancelar->isNotEmpty()) {
+            foreach ($ingressosParaCancelar as $ingresso) {
+                $ingresso->status = 'C';
+                $ingresso->save();
+            }
+            $this->info('Ingressos reservados antigos foram cancelados: ' . $ingressosParaCancelar->count());
+        }
+
         $this->info('Atualização de status concluída!');
     }
 }

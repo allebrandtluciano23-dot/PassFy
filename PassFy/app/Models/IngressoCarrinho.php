@@ -9,9 +9,9 @@ class IngressoCarrinho extends Model
 {
     protected $table = 'ingresso_carrinho';
 
-    public $incrementing = false; // chave composta
+    public $incrementing = false;
 
-    protected $primaryKey = null;
+    protected $primaryKey = ['idCarrinho', 'idLote'];
 
     protected $fillable = [
         'idCarrinho',
@@ -23,6 +23,22 @@ class IngressoCarrinho extends Model
     protected $casts = [
         'valorUnitario' => 'decimal:2',
     ];
+
+    /**
+     * Get the primary key for the model.
+     */
+    public function getKeyName()
+    {
+        return 'idCarrinho';
+    }
+
+    /**
+     * Get the value of the model's primary key.
+     */
+    public function getKey()
+    {
+        return $this->getAttribute('idCarrinho');
+    }
 
     public function carrinho(): BelongsTo
     {

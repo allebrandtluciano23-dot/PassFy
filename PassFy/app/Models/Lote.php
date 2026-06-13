@@ -22,9 +22,13 @@ class Lote extends Model
         'valorIngresso' => 'decimal:2',
     ];
 
-    // Relacionamento com Evento
     public function evento(): BelongsTo
     {
         return $this->belongsTo(Evento::class, 'idEvento');
+    }
+
+    public function ingressos()
+    {
+        return $this->hasMany(Ingresso::class, 'idLote', 'idLote');
     }
 }

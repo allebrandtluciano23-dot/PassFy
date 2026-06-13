@@ -75,7 +75,7 @@ class EventoController extends Controller
             $query->whereDate('dataEvento', $request->date);
         }
 
-        $eventos = $query->orderBy('dataEvento', 'asc')->simplePaginate(4);
+        $eventos = $query->orderBy('dataEvento', 'asc')->simplePaginate(32);
 
         // Calcular preço mínimo
         foreach ($eventos as $evento) {
@@ -183,6 +183,17 @@ class EventoController extends Controller
     {
         $evento = Evento::findOrFail($id);
         
+        // Verificar permissão
+        $organizadoraId = auth('organizadora')->id();
+        $clienteId = auth('cliente')->id();
+        
+        $temPermissao = ($organizadoraId && $evento->idOrg == $organizadoraId) ||
+                        ($clienteId && $evento->idCliente == $clienteId);
+        
+        if (!$temPermissao) {
+            return redirect()->route('meus.eventos')->with('error', 'Você não tem permissão para editar este evento.');
+        }
+        
         // Validação
         $validated = $request->validate([
             'nomeEvento' => 'required|string|max:255',
@@ -210,12 +221,9 @@ class EventoController extends Controller
             
             // Processar nova imagem
             if ($request->hasFile('imagemEvento')) {
-                // Deletar imagem antiga
                 if ($evento->imagemEvento && Storage::disk('public')->exists($evento->imagemEvento)) {
                     Storage::disk('public')->delete($evento->imagemEvento);
                 }
-                
-                // Salvar nova imagem
                 $path = $request->file('imagemEvento')->store('eventos', 'public');
                 $evento->imagemEvento = $path;
             }
@@ -228,6 +236,17 @@ class EventoController extends Controller
                     // Se o lote tem ID numérico (lote existente)
                     if (is_numeric($loteId) && Lote::where('idLote', $loteId)->exists()) {
                         $lote = Lote::find($loteId);
+                        
+                        // 👇 VERIFICAÇÃO DE INGRESSOS VENDIDOS/RESERVADOS
+                        $ingressosVinculados = $lote->ingressos()
+                            ->whereIn('status', ['A', 'R'])
+                            ->count();
+                        
+                        // Verificar se a nova quantidade é menor que ingressos já vendidos
+                        if ($loteData['quantidadeTotal'] < $ingressosVinculados) {
+                            throw new \Exception("O lote '{$lote->nomeLote}' tem {$ingressosVinculados} ingressos já vendidos/reservados. A quantidade total não pode ser menor que este número.");
+                        }
+                        
                         $lote->nomeLote = $loteData['nomeLote'];
                         $lote->quantidadeTotal = $loteData['quantidadeTotal'];
                         $lote->valorIngresso = $loteData['valorIngresso'];
@@ -236,7 +255,7 @@ class EventoController extends Controller
                     // Se é um novo lote (ID começa com 'novo_')
                     elseif (str_starts_with($loteId, 'novo_')) {
                         Lote::create([
-                            'evento_id' => $evento->idEvento,
+                            'idEvento' => $evento->idEvento,
                             'nomeLote' => $loteData['nomeLote'],
                             'quantidadeTotal' => $loteData['quantidadeTotal'],
                             'valorIngresso' => $loteData['valorIngresso'],
@@ -251,8 +270,7 @@ class EventoController extends Controller
             
         } catch (\Exception $e) {
             DB::rollBack();
-            
-            return back()->withErrors(['error' => 'Erro ao atualizar evento: ' . $e->getMessage()])->withInput();
+            return back()->withErrors(['error' => $e->getMessage()])->withInput();
         }
     }
 
@@ -260,6 +278,31 @@ class EventoController extends Controller
     public function destroyLote($id)
     {
         $lote = Lote::findOrFail($id);
+        
+        // Verificar permissão (dono do evento)
+        $evento = $lote->evento;
+        $organizadoraId = auth('organizadora')->id();
+        $clienteId = auth('cliente')->id();
+        
+        $temPermissao = ($organizadoraId && $evento->idOrg == $organizadoraId) ||
+                        ($clienteId && $evento->idCliente == $clienteId);
+        
+        if (!$temPermissao) {
+            return response()->json(['success' => false, 'message' => 'Sem permissão.'], 403);
+        }
+        
+        // Verificar se tem ingressos vendidos/reservados
+        $ingressosVinculados = $lote->ingressos()
+            ->whereIn('status', ['A', 'R'])
+            ->exists();
+        
+        if ($ingressosVinculados) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Não é possível excluir este lote pois ele possui ingressos já vendidos ou reservados.'
+            ], 400);
+        }
+        
         $lote->delete();
         
         return response()->json(['success' => true]);
@@ -343,21 +386,17 @@ class EventoController extends Controller
 
     public function show($id)
     {
-        $evento = Evento::with(['cidade', 'lotes'])->findOrFail($id);
+        $evento = Evento::with(['cidade', 'lotes.ingressos'])->findOrFail($id);
         
-        // Verificar se evento está ativo (ou disponível para visualização)
+        // Verificar se evento está ativo ou esgotado (para visualização)
         if ($evento->statusEvento != 'A' && $evento->statusEvento != 'E') {
             return redirect()->route('home')->with('error', 'Evento não disponível.');
         }
         
         // Calcular quantidade disponível por lote
         foreach ($evento->lotes as $lote) {
-            $vendidos = Ingresso::where('idLote', $lote->idLote)
-                ->where('status', 'A')
-                ->count();
-            $reservados = Ingresso::where('idLote', $lote->idLote)
-                ->where('status', 'R')
-                ->count();
+            $vendidos = $lote->ingressos->where('status', 'A')->count();
+            $reservados = $lote->ingressos->where('status', 'R')->count();
             $lote->disponivel = $lote->quantidadeTotal - $vendidos - $reservados;
         }
         

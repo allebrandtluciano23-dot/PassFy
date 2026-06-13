@@ -80,7 +80,6 @@ function fecharModal() {
     if (modal) modal.classList.remove('open');
 }
 
-// Verificar se está logado via meta tag (adicione no layout)
 function isLoggedIn() {
     const loggedIn = document.querySelector('meta[name="user-logged-in"]');
     return loggedIn && loggedIn.getAttribute('content') === 'true';
@@ -95,7 +94,6 @@ function redirecionarOuAbrirModal(e, destino) {
     }
 }
 
-// Eventos
 if (btnLogin && modal) btnLogin.addEventListener('click', abrirModal);
 if (visitorCriarEvento && modal) {
     visitorCriarEvento.addEventListener('click', (e) => {
@@ -484,6 +482,302 @@ function initLotes() {
     }
 }
 
+// Controles de quantidade + compra (página de detalhes do evento)
+document.querySelectorAll('.lote-item').forEach(loteItem => {
+    const input = loteItem.querySelector('.quantidade-input');
+    const btnDiminuir = loteItem.querySelector('.btn-diminuir-show');
+    const btnAumentar = loteItem.querySelector('.btn-aumentar-show');
+    const btnComprar = loteItem.querySelector('.btn-comprar');
+    const disponivel = parseInt(input?.getAttribute('max') || 0);
+    
+    // Controles de quantidade
+    if (btnDiminuir) {
+        btnDiminuir.addEventListener('click', () => {
+            let valor = parseInt(input.value);
+            if (valor > 0) input.value = valor - 1;
+        });
+    }
+    
+    if (btnAumentar) {
+        btnAumentar.addEventListener('click', () => {
+            let valor = parseInt(input.value);
+            if (valor < disponivel) input.value = valor + 1;
+        });
+    }
+    
+    if (input) {
+        input.addEventListener('change', () => {
+            let valor = parseInt(input.value);
+            if (isNaN(valor)) valor = 0;
+            if (valor > disponivel) valor = disponivel;
+            if (valor < 0) valor = 0;
+            input.value = valor;
+        });
+    }
+    
+    // Botão comprar
+    if (btnComprar) {
+        btnComprar.addEventListener('click', () => {
+            const quantidade = parseInt(input.value);
+            if (quantidade <= 0) {
+                alert('Selecione pelo menos 1 ingresso');
+                return;
+            }
+            
+            const loteId = loteItem.dataset.loteId;
+            
+            // ✅ Usando POST (correto)
+            fetch('/carrinho/adicionar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    lote_id: loteId,
+                    quantidade: quantidade
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = '/carrinho';
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Erro ao adicionar ao carrinho.');
+            });
+        });
+    }
+});
+
+function initCarrinho() {
+    function updateCartRow(itemId) {
+        const row = document.querySelector(`.carrinho-item[data-id="${itemId}"]`);
+        const input = row?.querySelector(`.quantidade[data-id="${itemId}"]`);
+        const subtotalElement = row?.querySelector('.item-subtotal p');
+        const unitPrice = parseFloat(row?.dataset.valor ?? 0);
+        const max = parseInt(input?.getAttribute('max') || '9999');
+        let quantidade = parseInt(input?.value ?? 0);
+
+        if (!input || !subtotalElement || isNaN(quantidade) || quantidade < 1) {
+            quantidade = 1;
+        }
+
+        if (quantidade > max) {
+            quantidade = max;
+        }
+
+        if (input) {
+            input.value = quantidade;
+        }
+
+        const subtotal = quantidade * unitPrice;
+        subtotalElement.textContent = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
+        updateCartTotal();
+    }
+
+    function updateCartTotal() {
+        const rows = document.querySelectorAll('.carrinho-item');
+        let total = 0;
+
+        rows.forEach(row => {
+            const unitPrice = parseFloat(row.dataset.valor ?? 0);
+            const input = row.querySelector('.quantidade');
+            const quantidade = parseInt(input?.value ?? 0);
+            if (!isNaN(unitPrice) && !isNaN(quantidade)) {
+                total += unitPrice * quantidade;
+            }
+        });
+
+        const totalElement = document.querySelector('.carrinho-resumo strong');
+        if (totalElement) {
+            totalElement.textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
+        }
+    }
+
+    // Botões de diminuir quantidade
+    document.querySelectorAll('.btn-diminuir').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const itemId = this.dataset.id;
+            const input = document.querySelector(`.quantidade[data-id="${itemId}"]`);
+            let quantidade = parseInt(input.value);
+
+            if (quantidade > 1) {
+                quantidade--;
+                input.value = quantidade;
+                updateCartRow(itemId);
+            }
+        });
+    });
+
+    // Botões de aumentar quantidade
+    document.querySelectorAll('.btn-aumentar').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const itemId = this.dataset.id;
+            const input = document.querySelector(`.quantidade[data-id="${itemId}"]`);
+            let quantidade = parseInt(input.value);
+            const max = parseInt(input.getAttribute('max') || '9999');
+
+            if (quantidade < max) {
+                quantidade++;
+                input.value = quantidade;
+                updateCartRow(itemId);
+            }
+        });
+    });
+    
+    // Input de quantidade (quando digitar manualmente)
+    document.querySelectorAll('.quantidade').forEach(input => {
+        input.addEventListener('change', function() {
+            let quantidade = parseInt(this.value);
+            const max = parseInt(this.getAttribute('max') || '9999');
+
+            if (isNaN(quantidade) || quantidade < 1) {
+                quantidade = 1;
+            }
+
+            if (quantidade > max) {
+                quantidade = max;
+            }
+
+            this.value = quantidade;
+            const itemId = this.dataset.id;
+            updateCartRow(itemId);
+        });
+    });
+
+    document.querySelectorAll('.btn-remover').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const itemId = this.dataset.id;
+            if (confirm('Remover este item do carrinho?')) {
+                removerItem(itemId);
+            }
+        });
+    });
+
+    const finalizarBtn = document.querySelector('.btn-finalizar');
+    if (finalizarBtn) {
+        finalizarBtn.addEventListener('click', function(event) {
+            event.preventDefault();
+            finalizarCarrinho();
+        });
+    }
+
+    updateCartTotal();
+}
+
+function finalizarCarrinho() {
+    const inputs = document.querySelectorAll('.quantidade');
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    const quantidades = Array.from(inputs).map(input => {
+        let quantidade = parseInt(input.value);
+        if (isNaN(quantidade) || quantidade < 1) {
+            quantidade = 1;
+            input.value = quantidade;
+        }
+
+        return {
+            itemId: input.dataset.id,
+            quantidade
+        };
+    });
+
+    fetch('/carrinho/finalizar', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'text/html, application/json',
+            'X-CSRF-TOKEN': csrfToken
+        },
+        body: JSON.stringify({ quantidades })
+    })
+    .then(async response => {
+        if (response.ok) {
+            const html = await response.text();
+            document.open();
+            document.write(html);
+            document.close();
+        } else {
+            const data = await response.json().catch(() => null);
+            throw new Error(data?.message || 'Erro ao finalizar a compra.');
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        alert('Erro ao finalizar a compra: ' + error.message);
+    });
+}
+
+// Remover item via AJAX
+function removerItem(itemId) {
+    fetch(`/carrinho/remover/${itemId}`, {
+        method: 'DELETE',
+        headers: {
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert(data.message || 'Erro ao remover item.');
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        alert('Erro ao remover item: ' + error.message);
+    });
+}
+
+function cancelarIngresso(id) {
+    let mensagem = '';
+    
+    if (status === 'A') {
+        mensagem = 'Tem certeza que deseja cancelar este ingresso? O valor será reembolsado para sua carteira digital.';
+    } else if (status === 'R') {
+        mensagem = 'Tem certeza que deseja cancelar esta reserva? A reserva será cancelada sem custos.';
+    } else {
+        mensagem = 'Tem certeza que deseja cancelar este ingresso?';
+    }
+    
+    if (!confirm(mensagem)) {
+        return;
+    }
+
+    fetch(`/ingressos/${id}/cancelar`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Ingresso cancelado com sucesso!');
+            window.location.reload();
+        } else {
+            alert(data.message || 'Erro ao cancelar ingresso.');
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        alert('Erro ao cancelar ingresso.');
+    });
+}
+
 // ---------------------------------- Inicialização Geral ---------------------------------
 document.addEventListener('DOMContentLoaded', function() {
     initLogin();
@@ -491,51 +785,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initUfCidade();
     initUploadImagem();
     initLotes();
-});
-
-// ------------------------------Controle de quantidade para compra--------------------------
-document.querySelectorAll('.lote-item').forEach(loteItem => {
-    const input = loteItem.querySelector('.quantidade-input');
-    const btnDiminuir = loteItem.querySelector('.btn-diminuir');
-    const btnAumentar = loteItem.querySelector('.btn-aumentar');
-    const btnComprar = loteItem.querySelector('.btn-comprar');
-    const disponivel = parseInt(input.getAttribute('max'));
-    
-    btnDiminuir.addEventListener('click', () => {
-        let valor = parseInt(input.value);
-        if (valor > 0) {
-            input.value = valor - 1;
-        }
-    });
-    
-    btnAumentar.addEventListener('click', () => {
-        let valor = parseInt(input.value);
-        if (valor < disponivel) {
-            input.value = valor + 1;
-        }
-    });
-    
-    input.addEventListener('change', () => {
-        let valor = parseInt(input.value);
-        if (isNaN(valor)) valor = 0;
-        if (valor > disponivel) valor = disponivel;
-        if (valor < 0) valor = 0;
-        input.value = valor;
-    });
-    
-    btnComprar.addEventListener('click', () => {
-        const quantidade = parseInt(input.value);
-        if (quantidade <= 0) {
-            alert('Selecione pelo menos 1 ingresso');
-            return;
-        }
-        
-        const loteId = loteItem.dataset.loteId;
-        const preco = parseFloat(loteItem.dataset.preco);
-        
-        // Redirecionar para carrinho ou processar compra
-        window.location.href = `/carrinho/adicionar?lote=${loteId}&quantidade=${quantidade}`;
-    });
+    initCarrinho();
 });
 
 // -------------  Card clicável para detalhes do evento na página meus eventos --------------

@@ -17,9 +17,8 @@ class Ingresso extends Model
         'status',
     ];
 
-    // Relacionamento com Lote
-    public function lote(): BelongsTo
+    public function lote()
     {
-        return $this->belongsTo(Lote::class, 'idLote');
+        return $this->belongsTo(Lote::class, 'idLote', 'idLote');
     }
 }
