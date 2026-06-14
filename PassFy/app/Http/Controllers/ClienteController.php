@@ -133,7 +133,7 @@ class ClienteController extends Controller
                 // Buscar ingressos comprados pelo cliente via tabela venda
             })
             ->orderBy('created_at', 'desc')
-            ->paginate(10);
+            ->simplePaginate(4);
 
         // Paginator -> obter coleção da página atual
         $collection = $ingressos->getCollection();

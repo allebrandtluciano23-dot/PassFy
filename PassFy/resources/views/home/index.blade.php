@@ -21,8 +21,10 @@
 				</div>
 			</div>
 			<div class="button-wrapper">
-				<i class="fa-brands fa-sistrix"></i>
-				<button type="submit">Buscar Eventos</button>
+				<button type="submit">
+					<i class="fa-brands fa-sistrix"></i>
+					Buscar Eventos
+				</button>
 			</div>
 		</form>
 	</section>

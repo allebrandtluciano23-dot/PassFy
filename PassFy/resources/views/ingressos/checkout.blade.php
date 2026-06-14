@@ -50,8 +50,9 @@
         <div class="checkout-pagamento">
             <h2><i class="fa-solid fa-credit-card"></i> Forma de Pagamento</h2>
             
-            <form id="form-pagamento" action="#" method="POST">
+            <form id="form-pagamento" action="{{ route('checkout.pagar') }}" method="POST">
                 @csrf
+                <input type="hidden" name="ingressos" value="{{ $ingressoIds }}">
                 
                 <div class="pagamento-opcoes">
                     <label class="pagamento-opcao">
@@ -116,9 +117,8 @@
                         <p>Saldo disponível: <strong>R$ {{ number_format($carteiraSaldo ?? 0, 2, ',', '.') }}</strong></p>
                         @if(($carteiraSaldo ?? 0) < $total)
                             <div class="carteira-insuficiente">
-                                <i class="fa-solid fa-circle-exclamation"></i>
-                                <p>Saldo insuficiente para realizar esta compra.</p>
-                                <a href="{{ route('carteira.depositar') }}" class="btn-carteira">Depositar na carteira</a>
+                                <p><i class="fa-solid fa-circle-exclamation"></i>Saldo insuficiente para realizar esta compra.</p>
+                                <a href="{{ route('carteira.index') }}" class="btn-carteira">Depositar na carteira</a>
                             </div>
                         @endif
                     </div>
@@ -133,32 +133,43 @@
 </section>
 
 <script>
-    // Mostrar/esconder campos conforme forma de pagamento
-    const opcoesPagamento = document.querySelectorAll('input[name="forma_pagamento"]');
-    const cartaoFields = document.getElementById('cartao-fields');
-    const pixFields = document.getElementById('pix-fields');
-    const carteiraFields = document.getElementById('carteira-fields');
-    
-    opcoesPagamento.forEach(option => {
-        option.addEventListener('change', function() {
+    (function () {
+        const cartaoFields = document.getElementById('cartao-fields');
+        const pixFields = document.getElementById('pix-fields');
+        const carteiraFields = document.getElementById('carteira-fields');
+        const opcoesPagamento = document.querySelectorAll('input[name="forma_pagamento"]');
+
+        function mostrarCamposPagamento(tipo) {
             cartaoFields.style.display = 'none';
             pixFields.style.display = 'none';
             carteiraFields.style.display = 'none';
-            
-            if (this.value === 'cartao') {
+
+            if (tipo === 'cartao') {
                 cartaoFields.style.display = 'block';
-            } else if (this.value === 'pix') {
+            } else if (tipo === 'pix') {
                 pixFields.style.display = 'block';
-            } else if (this.value === 'carteira') {
+            } else if (tipo === 'carteira') {
                 carteiraFields.style.display = 'block';
             }
+        }
+
+        opcoesPagamento.forEach(option => {
+            option.addEventListener('change', function () {
+                mostrarCamposPagamento(this.value);
+            });
         });
-    });
-    
-    function copiarPix() {
-        const pixCodigo = document.getElementById('pix-codigo').innerText;
-        navigator.clipboard.writeText(pixCodigo);
-        alert('Código PIX copiado!');
-    }
+
+        // Inicializa a exibição correta
+        if (opcoesPagamento.length) {
+            mostrarCamposPagamento(document.querySelector('input[name="forma_pagamento"]:checked')?.value || 'cartao');
+        }
+
+        window.copiarPix = function () {
+            const pixCodigo = document.getElementById('pix-codigo');
+            if (!pixCodigo) return;
+            navigator.clipboard.writeText(pixCodigo.innerText);
+            alert('Código PIX copiado!');
+        };
+    })();
 </script>
 @endsection

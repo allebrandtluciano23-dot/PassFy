@@ -7,6 +7,30 @@
 		<div class="cadastro-header">
 			<h1>Editar Evento</h1>
 			<p>Altere os dados do evento</p>
+
+			{{-- MENSAGENS DE SUCESSO/ERRO --}}
+			@if(session('success'))
+				<div class="alert alert-success">
+					{{ session('success') }}
+				</div>
+			@endif
+
+			@if(session('error'))
+				<div class="alert alert-error">
+					{{ session('error') }}
+				</div>
+			@endif
+
+			@if($errors->any())
+				<div class="alert alert-error">
+					<ul style="margin: 0; padding-left: 1.2rem;">
+						@foreach($errors->all() as $error)
+							<li>{{ $error }}</li>
+						@endforeach
+					</ul>
+				</div>
+			@endif
+		</div>
 		</div>
 		<form id="form-editar-evento" class="form-cadastro" method="POST" action="{{ route('eventos.update', $evento->idEvento) }}" enctype="multipart/form-data">
 			@csrf
@@ -152,15 +176,6 @@
 			@if(session('error'))
 				<div class="error-message" style="color: red; margin-top: 1rem;">
 					{{ session('error') }}
-				</div>
-			@endif
-			@if($errors->any())
-				<div class="error-message" style="color: red; margin-top: 1rem;">
-					<ul style="margin: 0; padding-left: 1.2rem;">
-						@foreach($errors->all() as $error)
-							<li>{{ $error }}</li>
-						@endforeach
-					</ul>
 				</div>
 			@endif
 			<div id="registerError" style="display: none; color: red;"></div>

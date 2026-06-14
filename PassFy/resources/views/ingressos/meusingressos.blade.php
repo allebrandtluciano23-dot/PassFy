@@ -85,11 +85,11 @@
                             <a href="{{ route('checkout.index') }}?ingresso={{ $ingresso->idIngresso }}" class="btn-pagar">
                                 <i class="fa-solid fa-credit-card"></i> Finalizar Pagamento
                             </a>
-                            <button type="button" class="btn-cancelar" onclick="cancelarIngresso({{ $ingresso->idIngresso }}, 'R')">
+                            <button type="button" class="btn-cancelar-ingresso" onclick="cancelarIngresso({{ $ingresso->idIngresso }}, 'R')">
                                 <i class="fa-solid fa-times"></i> Cancelar Reserva
                             </button>
                         @elseif($ingresso->status == 'A')
-                            <button type="button" class="btn-cancelar" onclick="cancelarIngresso({{ $ingresso->idIngresso }}, 'A')">
+                            <button type="button" class="btn-cancelar-ingresso" onclick="cancelarIngresso({{ $ingresso->idIngresso }}, 'A')">
                                 <i class="fa-solid fa-times"></i> Cancelar Ingresso
                             </button>
                         @endif

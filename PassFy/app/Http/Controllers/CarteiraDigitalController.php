@@ -2,64 +2,51 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Carteira_digital;
+use App\Models\CarteiraDigital;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class CarteiraDigitalController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $clienteId = auth('cliente')->id();
+        
+        $carteira = CarteiraDigital::firstOrCreate(
+            ['idCliente' => $clienteId],
+            ['saldo' => 0.00]
+        );
+        
+        return view('cliente.carteira', ['saldo' => $carteira->saldo]);
     }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    
+    public function depositar(Request $request)
     {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Carteira_digital $carteira_digital)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Carteira_digital $carteira_digital)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Carteira_digital $carteira_digital)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Carteira_digital $carteira_digital)
-    {
-        //
+        $request->validate([
+            'valor' => 'required|numeric|min:1'
+        ]);
+        
+        $clienteId = auth('cliente')->id();
+        $valor = $request->valor;
+        
+        DB::beginTransaction();
+        
+        try {
+            $carteira = CarteiraDigital::firstOrCreate(
+                ['idCliente' => $clienteId],
+                ['saldo' => 0.00]
+            );
+            
+            $carteira->saldo += $valor;
+            $carteira->save();
+            
+            DB::commit();
+            
+            return response()->json(['success' => true, 'saldo' => $carteira->saldo]);
+            
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
     }
 }

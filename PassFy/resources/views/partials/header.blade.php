@@ -16,10 +16,7 @@
 					<a href="{{ route('meus.ingressos') }}"><i class="fa-solid fa-ticket"></i> Meus Ingressos</a>
 				</li>
 				<li>
-					<a href="#"><i class="fa-solid fa-wallet"></i> Carteira (R$ {{ number_format(Auth::guard('cliente')->user()->carteiraDigital->saldo ?? 0, 2, ',', '.') }})</a>
-				</li>
-				<li>
-					<a href="#"><i class="fa-solid fa-user"></i> Perfil </a>
+					<a href="{{ route('carteira.index') }}"><i class="fa-solid fa-wallet"></i> Carteira (R$ {{ number_format(Auth::guard('cliente')->user()->carteiraDigital->saldo ?? 0, 2, ',', '.') }})</a>
 				</li>
 				<li>
 					<a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
@@ -41,9 +38,6 @@
 					<a href="#"><i class="fa-solid fa-chart-line"></i> Relatórios</a>
 				</li>
 				<li>
-					<a href="#"><i class="fa-solid fa-building"></i> Perfil </a>
-				</li>
-				<li>
 					<a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
 						<i class="fa-solid fa-sign-out-alt"></i> Sair
 					</a>
@@ -57,7 +51,7 @@
 					<a href="#"><i class="fa-solid fa-cog"></i> Administração</a>
 				</li>
 				<li>
-					<a href="#"><i class="fa-solid fa-users"></i> Gerenciar Usuários</a>
+					<a href="{{ route('admin.usuarios') }}"><i class="fa-solid fa-users"></i> Gerenciar Usuários</a>
 				</li>
 				<li>
 					<a href="#"><i class="fa-solid fa-chart-bar"></i> Dashboard</a>

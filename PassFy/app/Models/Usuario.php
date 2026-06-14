@@ -20,7 +20,6 @@ class Usuario extends Authenticatable
         'senhaUsuario',
     ];
 
-    // 👇 essencial pro login
     public function getAuthPassword()
     {
         return $this->senhaUsuario;
@@ -28,10 +27,9 @@ class Usuario extends Authenticatable
 
     public function getAuthIdentifierName()
     {
-        return 'nomeUsuario';
+        return 'idUsuario';
     }
 
-    // 👇 hash automático
     public function setSenhaUsuarioAttribute($value)
     {
         $this->attributes['senhaUsuario'] = Hash::make($value);

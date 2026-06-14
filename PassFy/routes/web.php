@@ -10,7 +10,8 @@ use App\Http\Controllers\CidadeController;
 use App\Http\Controllers\CarrinhoController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\PagamentoController;
-use App\Http\Controllers\CarteiraController;
+use App\Http\Controllers\CarteiraDigitalController;
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Auth\LoginController;
 
 // Rotas de login
@@ -71,8 +72,13 @@ Route::middleware(['auth:cliente'])->group(function () {
     Route::get('/pagamento/finalizar/todos', [PagamentoController::class, 'finalizarTodos'])->name('pagamento.finalizar.todos');
 
     // Carteira digital
-    Route::get('/carteira', [CarteiraController::class, 'index'])->name('carteira.index');
-    Route::post('/carteira/depositar', [CarteiraController::class, 'depositar'])->name('carteira.depositar');
+    Route::get('/carteira', [CarteiraDigitalController::class, 'index'])->name('carteira.index');
+    Route::post('/carteira/depositar', [CarteiraDigitalController::class, 'depositar'])->name('carteira.depositar');
+    Route::get('/cliente/carteira', [CarteiraDigitalController::class, 'index'])->name('cliente.carteira');
+});
+
+Route::middleware(['auth:usuario'])->prefix('admin')->group(function () {
+    Route::get('/usuarios', [AdminController::class, 'usuarios'])->name('admin.usuarios');
 });
 
 // Listar eventos
@@ -106,5 +112,9 @@ Route::get('/register/usuario', function () {
 
 // Rota de login padrão
 Route::get('/login', function () {
+    if (Auth::guard('cliente')->check() || Auth::guard('organizadora')->check() || Auth::guard('usuario')->check()) {
+        return redirect()->route('home');
+    }
+    
     return redirect('/')->with('open_modal', true);
 })->name('login');

@@ -988,8 +988,9 @@ footer {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 20px;
-	justify-content: start;
+	justify-content: center;
 }
+
 .card-evento {
     width: 310px;
     height: auto;
@@ -1751,7 +1752,7 @@ footer {
     transform: translateY(-2px);
 }
 
-.btn-cancelar {
+.btn-cancelar-ingresso {
     flex: 1;
     padding: 10px 16px;
     background: #fee2e2;
@@ -1764,7 +1765,7 @@ footer {
     transition: all 0.3s ease;
 }
 
-.btn-cancelar:hover {
+.btn-cancelar-ingresso:hover {
     background: #dc3545;
     color: white;
     transform: translateY(-2px);
@@ -2055,6 +2056,7 @@ footer {
 .campo input,
 .campo select {
     width: 100%;
+    box-sizing: border-box;
     padding: 12px;
     border: 1px solid #ddd;
     border-radius: 10px;
@@ -2439,6 +2441,598 @@ footer {
     .lote-quantidade {
         justify-content: center;
     }
+}
+
+/* --------------------Administração-------------------- */
+
+.admin-section {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.admin-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.admin-header h1 {
+    font-size: 28px;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.admin-header h1 i {
+    color: #8B5CF6;
+    margin-right: 10px;
+}
+
+.admin-header p {
+    color: #666;
+}
+
+/* Abas */
+.admin-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.tab-btn {
+    padding: 10px 30px;
+    background: #f5f5f5;
+    border: none;
+    border-radius: 40px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #666;
+}
+
+.tab-btn i {
+    margin-right: 8px;
+}
+
+.tab-btn:hover {
+    background: #e0e0e0;
+}
+
+.tab-btn.active {
+    background: #8B5CF6;
+    color: white;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+/* Conteúdo das abas */
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.table-header h2 {
+    font-size: 18px;
+    color: #333;
+}
+
+.table-header h2 i {
+    color: #8B5CF6;
+    margin-right: 8px;
+}
+
+.total-count {
+    background: #f5f5f5;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    color: #666;
+}
+
+/* Tabela */
+.table-responsive {
+    overflow-x: auto;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.admin-table th {
+    text-align: left;
+    padding: 14px 16px;
+    background: #f8f9fa;
+    color: #555;
+    font-weight: 600;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.admin-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    color: #444;
+}
+
+.admin-table tr:hover {
+    background: #fafafa;
+}
+
+.admin-table i {
+    margin-right: 6px;
+    color: #8B5CF6;
+}
+
+/* Status */
+.status-ativo {
+    display: inline-block;
+    padding: 4px 12px;
+    background: #d4edda;
+    color: #155724;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* Nenhum registro */
+.nenhum-registro {
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border-radius: 16px;
+}
+
+.nenhum-registro i {
+    font-size: 48px;
+    color: #ccc;
+    margin-bottom: 15px;
+}
+
+.nenhum-registro p {
+    color: #666;
+    font-size: 16px;
+}
+
+/* Footer */
+.admin-footer {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.btn-voltar {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: #6c757d;
+    color: white;
+    text-decoration: none;
+    border-radius: 30px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.btn-voltar:hover {
+    background: #5a6268;
+    transform: translateY(-2px);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .admin-tabs {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .tab-btn {
+        width: 100%;
+    }
+    
+    .admin-table th,
+    .admin-table td {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+    
+    .table-header {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+}
+
+/* ---------------------Carteira Digital--------------------- */
+
+.carteira-section {
+    max-width: 800px;
+    margin: 60px auto;
+    padding: 0 20px;
+}
+
+.carteira-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.carteira-header h1 {
+    font-size: 28px;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.carteira-header h1 i {
+    color: #8B5CF6;
+    margin-right: 10px;
+}
+
+.carteira-header p {
+    color: #666;
+}
+
+.carteira-saldo-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    background: linear-gradient(135deg, #8B5CF6 0%, #6B21A5 100%);
+    border-radius: 24px;
+    padding: 40px;
+    color: white;
+    box-shadow: 0 8px 24px rgba(139, 92, 246, 0.3);
+}
+
+.saldo-label {
+    font-size: 14px;
+    opacity: 0.9;
+    letter-spacing: 1px;
+}
+
+.saldo-valor {
+    font-size: 42px;
+    font-weight: 700;
+    display: block;
+    margin-top: 8px;
+}
+
+.btn-depositar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 24px;
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.4);
+    border-radius: 40px;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-depositar:hover {
+    background: rgba(255,255,255,0.3);
+    transform: translateY(-2px);
+}
+
+/* Modal PIX */
+.modal-pix {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-pix-content {
+    background: white;
+    border-radius: 24px;
+    width: 90%;
+    max-width: 450px;
+    overflow: hidden;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-pix-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.modal-pix-header h3 {
+    margin: 0;
+    color: #333;
+}
+
+.modal-pix-header h3 i {
+    color: #8B5CF6;
+    margin-right: 8px;
+}
+
+.close-modal {
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    color: #999;
+    transition: color 0.3s;
+}
+
+.close-modal:hover {
+    color: #333;
+}
+
+.modal-pix-body {
+    padding: 24px;
+}
+
+.pix-valor-info p {
+    margin-bottom: 8px;
+    color: #555;
+    font-weight: 500;
+}
+
+.pix-valor-input {
+    display: flex;
+    align-items: center;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.prefixo {
+    padding: 14px 16px;
+    background: #f5f5f5;
+    color: #666;
+    font-weight: 600;
+    border-right: 1px solid #e0e0e0;
+}
+
+.pix-valor-input input {
+    flex: 1;
+    padding: 14px 16px;
+    border: none;
+    font-size: 16px;
+    outline: none;
+}
+
+.pix-valor-input input:focus {
+    background: #f8f4ff;
+}
+
+/* QR Code Area */
+.pix-qrcode-area {
+    text-align: center;
+}
+
+.qrcode-placeholder {
+    background: #f8f9fa;
+    padding: 30px;
+    border-radius: 16px;
+    margin-bottom: 20px;
+}
+
+.qrcode-placeholder i {
+    font-size: 80px;
+    color: #8B5CF6;
+    margin-bottom: 15px;
+}
+
+.qrcode-placeholder p {
+    color: #666;
+    font-size: 13px;
+}
+
+.pix-codigo {
+    background: #f8f9fa;
+    padding: 16px;
+    border-radius: 12px;
+    margin-top: 15px;
+}
+
+.pix-codigo p {
+    margin-bottom: 8px;
+    font-size: 12px;
+    color: #666;
+}
+
+.codigo-wrapper {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.codigo-wrapper span {
+    flex: 1;
+    font-family: monospace;
+    font-size: 10px;
+    word-break: break-all;
+    background: white;
+    padding: 8px;
+    border-radius: 8px;
+}
+
+.btn-copiar {
+    padding: 8px 12px;
+    background: #8B5CF6;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-copiar:hover {
+    background: #7C3AED;
+}
+
+/* Sucesso */
+.pix-sucesso {
+    text-align: center;
+}
+
+.pix-sucesso i {
+    font-size: 64px;
+    color: #28a745;
+    margin-bottom: 20px;
+}
+
+.pix-sucesso h4 {
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.pix-sucesso p {
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.btn-fechar-sucesso {
+    padding: 12px 24px;
+    background: #8B5CF6;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-fechar-sucesso:hover {
+    background: #7C3AED;
+    transform: translateY(-2px);
+}
+
+/* Ações do modal */
+.modal-pix-acoes {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+    justify-content: flex-end;
+}
+
+.btn-cancelar {
+    padding: 12px 20px;
+    background: #f5f5f5;
+    border: none;
+    border-radius: 12px;
+    color: #666;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-cancelar:hover {
+    background: #e0e0e0;
+}
+
+.btn-gerar-pix {
+    padding: 12px 24px;
+    background: #8B5CF6;
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-gerar-pix:hover {
+    background: #7C3AED;
+    transform: translateY(-2px);
+}
+
+/* Responsividade */
+@media (max-width: 480px) {
+    .carteira-saldo-card {
+        flex-direction: column;
+        text-align: center;
+        padding: 30px;
+    }
+    
+    .saldo-valor {
+        font-size: 32px;
+    }
+    
+    .modal-pix-content {
+        width: 95%;
+    }
+}
+
+.btn-depositar-pix {
+    padding: 12px 24px;
+    background: #28a745;
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-depositar-pix:hover {
+    background: #1e7e34;
+    transform: translateY(-2px);
+}
+
+.btn-gerar-pix {
+    padding: 12px 24px;
+    background: #8B5CF6;
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-gerar-pix:hover {
+    background: #7C3AED;
+    transform: translateY(-2px);
 }
 
 /*--------------------templates--------------------*/

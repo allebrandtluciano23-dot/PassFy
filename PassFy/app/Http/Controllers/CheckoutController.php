@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CarteiraDigital;
 use App\Models\Ingresso;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class CheckoutController extends Controller
 {
@@ -47,6 +50,69 @@ class CheckoutController extends Controller
             return $item->quantidade * $item->valorUnitario;
         });
 
-        return view('ingressos.checkout', ['itens' => $grouped, 'total' => $total]);
+        $carteiraSaldo = 0;
+        if ($cliente = Auth::guard('cliente')->user()) {
+            $carteiraSaldo = $cliente->carteiraDigital?->saldo ?? 0;
+        }
+
+        return view('ingressos.checkout', [
+            'itens' => $grouped,
+            'total' => $total,
+            'carteiraSaldo' => $carteiraSaldo,
+            'ingressoIds' => implode(',', $ids),
+        ]);
+    }
+
+    public function pagar(Request $request)
+    {
+        $request->validate([
+            'forma_pagamento' => 'required|in:cartao,pix,carteira',
+            'ingressos' => 'required|string',
+        ]);
+
+        $ids = array_filter(array_map('intval', explode(',', $request->input('ingressos'))));
+        if (empty($ids)) {
+            return redirect()->route('carrinho.index')->with('error', 'Nenhum ingresso selecionado para pagamento.');
+        }
+
+        $ingressos = Ingresso::whereIn('idIngresso', $ids)
+            ->where('status', 'R')
+            ->get();
+
+        if ($ingressos->count() !== count($ids)) {
+            return redirect()->route('carrinho.index')->with('error', 'Ingressos inválidos ou não reservados.');
+        }
+
+        $total = $ingressos->sum(function ($item) {
+            return $item->lote->valorIngresso;
+        });
+
+        if ($request->input('forma_pagamento') === 'carteira') {
+            $cliente = Auth::guard('cliente')->user();
+            $carteira = CarteiraDigital::firstOrCreate([
+                'idCliente' => $cliente->idCliente,
+            ], ['saldo' => 0.00]);
+
+            if ($carteira->saldo < $total) {
+                return redirect()->back()->with('error', 'Saldo insuficiente na carteira digital.');
+            }
+
+            DB::transaction(function () use ($ingressos, $carteira, $total) {
+                $carteira->saldo -= $total;
+                $carteira->save();
+
+                foreach ($ingressos as $ingresso) {
+                    $ingresso->status = 'A';
+                    $ingresso->save();
+                }
+            });
+        } else {
+            foreach ($ingressos as $ingresso) {
+                $ingresso->status = 'A';
+                $ingresso->save();
+            }
+        }
+
+        return redirect()->route('meus.ingressos')->with('success', 'Pagamento simulado com sucesso!');
     }
 }

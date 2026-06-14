@@ -35,11 +35,6 @@ function mostrarErro(elementId, mensagem, cor = 'red') {
     }
 }
 
-function esconderErro(elementId) {
-    const el = document.getElementById(elementId);
-    if (el) el.style.display = 'none';
-}
-
 function mostrarErroGenerica(elementId, mensagem) {
     const el = document.getElementById(elementId);
     if (!el) return;
@@ -741,9 +736,9 @@ function removerItem(itemId) {
     });
 }
 
-function cancelarIngresso(id) {
+function cancelarIngresso(id, status) {
     let mensagem = '';
-    
+
     if (status === 'A') {
         mensagem = 'Tem certeza que deseja cancelar este ingresso? O valor será reembolsado para sua carteira digital.';
     } else if (status === 'R') {
@@ -778,6 +773,147 @@ function cancelarIngresso(id) {
     });
 }
 
+// -----------------------------Carteira Digital-----------------------------
+
+function initCarteira() {
+    const btnDepositar = document.getElementById('btn-depositar');
+    const modalPix = document.getElementById('modal-pix');
+    const closeModal = document.getElementById('close-modal');
+    const cancelarPix = document.getElementById('cancelar-pix');
+    const gerarPix = document.getElementById('gerar-pix');
+    const pixQrcodeArea = document.getElementById('pix-qrcode-area');
+    const pixSucesso = document.getElementById('pix-sucesso');
+    const pixValorInfo = document.querySelector('.pix-valor-info');
+    const valorInput = document.getElementById('valor-pix');
+    
+    if (!btnDepositar) return;
+    
+    // Abrir modal
+    btnDepositar.addEventListener('click', function() {
+        modalPix.style.display = 'flex';
+        // Resetar estados
+        if (pixQrcodeArea) pixQrcodeArea.style.display = 'none';
+        if (pixSucesso) pixSucesso.style.display = 'none';
+        if (pixValorInfo) pixValorInfo.style.display = 'block';
+        if (valorInput) valorInput.value = '';
+        
+        // Resetar botão
+        gerarPix.textContent = 'Gerar PIX';
+        gerarPix.classList.remove('btn-depositar-pix');
+        gerarPix.classList.add('btn-gerar-pix');
+    });
+    
+    // Fechar modal
+    function fecharModal() {
+        modalPix.style.display = 'none';
+    }
+    
+    if (closeModal) closeModal.addEventListener('click', fecharModal);
+    if (cancelarPix) cancelarPix.addEventListener('click', fecharModal);
+    
+    // Fechar ao clicar fora
+    window.addEventListener('click', function(e) {
+        if (e.target === modalPix) {
+            fecharModal();
+        }
+    });
+    
+    // Gerar PIX
+    if (gerarPix) {
+        gerarPix.addEventListener('click', function() {
+            const valor = parseFloat(valorInput?.value);
+            
+            if (isNaN(valor) || valor < 1) {
+                alert('Digite um valor válido (mínimo R$ 1,00)');
+                return;
+            }
+            
+            // Se já está na área de QR Code, significa que é para depositar
+            if (pixQrcodeArea.style.display === 'block') {
+                // Botão agora é "Depositar" - simular pagamento
+                simularPagamento(valor);
+            } else {
+                // Primeira etapa: gerar QR Code
+                pixValorInfo.style.display = 'none';
+                pixQrcodeArea.style.display = 'block';
+                
+                // Gerar código PIX simulado
+                const pixCodigo = `00020126360014BR.GOV.BCB.PIX0123${Math.random().toString(36).substring(2, 10).toUpperCase()}5204000053039865802BR5925PassFy6009SAO PAULO61080540900062240520${Math.random().toString(36).substring(2, 15).toUpperCase()}6304${Math.floor(Math.random() * 9999)}`;
+                const codigoSpan = document.getElementById('pix-codigo');
+                if (codigoSpan) codigoSpan.innerText = pixCodigo;
+                
+                // Mudar botão para "Depositar"
+                gerarPix.textContent = 'Depositar';
+                gerarPix.classList.remove('btn-gerar-pix');
+                gerarPix.classList.add('btn-depositar-pix');
+            }
+        });
+    }
+    
+    // Copiar código PIX
+    const copiarBtn = document.getElementById('copiar-pix');
+    if (copiarBtn) {
+        copiarBtn.addEventListener('click', function() {
+            const pixCodigo = document.getElementById('pix-codigo')?.innerText;
+            if (pixCodigo) {
+                navigator.clipboard.writeText(pixCodigo);
+                alert('Código PIX copiado!');
+            }
+        });
+    }
+    
+    // Simular pagamento
+    function simularPagamento(valor) {
+        // Mostrar loading no botão
+        const originalText = gerarPix.textContent;
+        gerarPix.textContent = 'Processando...';
+        gerarPix.disabled = true;
+        
+        // Simular processamento de 2 segundos
+        setTimeout(() => {
+            // Esconder QR Code e mostrar sucesso
+            pixQrcodeArea.style.display = 'none';
+            pixSucesso.style.display = 'block';
+            
+            // Enviar requisição para atualizar saldo
+            fetch('/carteira/depositar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({ valor: valor })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Atualizar saldo na tela
+                    const saldoElement = document.querySelector('.saldo-valor');
+                    if (saldoElement) {
+                        const saldoAtual = parseFloat(saldoElement.innerText.replace('R$ ', '').replace(/\./g, '').replace(',', '.'));
+                        const novoSaldo = saldoAtual + valor;
+                        saldoElement.innerText = `R$ ${novoSaldo.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+            });
+            
+            gerarPix.disabled = false;
+        }, 2000);
+    }
+    
+    // Fechar sucesso e recarregar
+    const fecharSucesso = document.getElementById('fechar-sucesso');
+    if (fecharSucesso) {
+        fecharSucesso.addEventListener('click', function() {
+            fecharModal();
+            window.location.reload();
+        });
+    }
+}
+
 // ---------------------------------- Inicialização Geral ---------------------------------
 document.addEventListener('DOMContentLoaded', function() {
     initLogin();
@@ -786,13 +922,13 @@ document.addEventListener('DOMContentLoaded', function() {
     initUploadImagem();
     initLotes();
     initCarrinho();
+    initCarteira();
 });
 
 // -------------  Card clicável para detalhes do evento na página meus eventos --------------
 document.querySelectorAll('.card-evento').forEach(card => {
     const url = card.dataset.url;
-    const botoes = card.querySelectorAll('a, button');
-    
+
     card.addEventListener('click', (e) => {
         // Se clicou em botão ou link, não redireciona
         if (e.target.closest('a, button')) return;
