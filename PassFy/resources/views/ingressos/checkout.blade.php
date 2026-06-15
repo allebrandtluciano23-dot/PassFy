@@ -138,6 +138,7 @@
         const pixFields = document.getElementById('pix-fields');
         const carteiraFields = document.getElementById('carteira-fields');
         const opcoesPagamento = document.querySelectorAll('input[name="forma_pagamento"]');
+        const form = document.getElementById('form-pagamento');
 
         function mostrarCamposPagamento(tipo) {
             cartaoFields.style.display = 'none';
@@ -170,6 +171,37 @@
             navigator.clipboard.writeText(pixCodigo.innerText);
             alert('Código PIX copiado!');
         };
+
+        // 👇 INTERCEPTAR O ENVIO DO FORMULÁRIO PARA DEBUG
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault(); // Impede o envio normal para debug
+
+                const formData = new FormData(form);
+
+                fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Resposta:', data);
+                    if (data.success) {
+                        window.location.href = data.redirect || '/meus-ingressos';
+                    } else {
+                        alert(data.message || 'Erro ao processar pagamento');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    alert('Erro ao processar pagamento. Verifique o console.');
+                });
+            });
+        }
     })();
 </script>
 @endsection

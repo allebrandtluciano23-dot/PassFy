@@ -208,94 +208,86 @@ class CarrinhoController extends Controller
     
     // Finalizar compra (ir para checkout)
     public function finalizar(Request $request)
-    {
-        $request->validate([
-            'quantidades' => 'required|array|min:1',
-            'quantidades.*.itemId' => 'required|integer',
-            'quantidades.*.quantidade' => 'required|integer|min:1',
-        ]);
+{
+    $request->validate([
+        'quantidades' => 'required|array|min:1',
+        'quantidades.*.itemId' => 'required|integer',
+        'quantidades.*.quantidade' => 'required|integer|min:1',
+    ]);
 
-        $clienteId = auth('cliente')->id();
-        $carrinho = Carrinho::where('idCliente', $clienteId)->first();
-        
-        if (!$carrinho) {
-            return response()->json(['success' => false, 'message' => 'Carrinho vazio.'], 422);
-        }
-        
-        $itens = IngressoCarrinho::with('lote')
-            ->where('idCarrinho', $carrinho->idCarrinho)
-            ->get();
-        
-        if ($itens->isEmpty()) {
-            return response()->json(['success' => false, 'message' => 'Carrinho vazio.'], 422);
-        }
-
-        $quantidades = collect($request->quantidades)->keyBy('itemId')->map(function ($item) {
-            return intval($item['quantidade']);
-        });
-
-        $removedItems = [];
-
-        // Verificar disponibilidade novamente antes de finalizar
-        foreach ($itens as $item) {
-            $itemQuantidade = $quantidades->get($item->idLote, $item->quantidade);
-            $lote = $item->lote;
-            $vendidos = $lote->ingressos()->whereIn('status', ['A', 'R'])->count();
-            $disponivel = $lote->quantidadeTotal - $vendidos;
-
-            if ($disponivel <= 0) {
-                IngressoCarrinho::where('idCarrinho', $carrinho->idCarrinho)
-                    ->where('idLote', $item->idLote)
-                    ->delete();
-
-                $removedItems[] = $lote->nomeLote;
-                continue;
-            }
-
-            if ($itemQuantidade > $disponivel) {
-                return response()->json([
-                    'success' => false,
-                    'message' => "O lote '{$lote->nomeLote}' tem apenas {$disponivel} ingressos disponíveis no momento."
-                ], 422);
-            }
-
-            $item->quantidade = $itemQuantidade;
-        }
-
-        if (!empty($removedItems)) {
-            $nomes = implode(', ', $removedItems);
-            return response()->json([
-                'success' => false,
-                'message' => "Os seguintes itens foram removidos do carrinho porque não há disponibilidade: {$nomes}. Atualize a página e tente novamente."
-            ], 422);
-        }
-
-        // Calcular total
-        $total = $itens->sum(function ($item) {
-            return $item->quantidade * $item->valorUnitario;
-        });
-        
-        // Criar ingressos reservados (status 'R') para cada item do carrinho e remover itens do carrinho
-        DB::transaction(function () use ($itens, $carrinho) {
-            foreach ($itens as $item) {
-                for ($i = 0; $i < $item->quantidade; $i++) {
-                    // Gerar codigoUnico único
-                    do {
-                        $codigo = random_int(100000000, 999999999);
-                    } while (Ingresso::where('codigoUnico', $codigo)->exists());
-
-                    Ingresso::create([
-                        'idLote' => $item->idLote,
-                        'codigoUnico' => $codigo,
-                        'status' => 'R',
-                    ]);
-                }
-            }
-
-            // Remover todos os itens do carrinho do cliente após reservar ingressos
-            IngressoCarrinho::where('idCarrinho', $carrinho->idCarrinho)->delete();
-        });
-
-        return view('ingressos.checkout', compact('itens', 'total'));
+    $clienteId = auth('cliente')->id();
+    $carrinho = Carrinho::where('idCliente', $clienteId)->first();
+    
+    if (!$carrinho) {
+        return redirect()->route('carrinho.index')->with('error', 'Carrinho vazio.');
     }
+    
+    $itens = IngressoCarrinho::with('lote')
+        ->where('idCarrinho', $carrinho->idCarrinho)
+        ->get();
+    
+    if ($itens->isEmpty()) {
+        return redirect()->route('carrinho.index')->with('error', 'Carrinho vazio.');
+    }
+
+    $quantidades = collect($request->quantidades)->keyBy('itemId')->map(function ($item) {
+        return intval($item['quantidade']);
+    });
+
+    $removedItems = [];
+
+    // Verificar disponibilidade
+    foreach ($itens as $item) {
+        $itemQuantidade = $quantidades->get($item->idLote, $item->quantidade);
+        $lote = $item->lote;
+        $vendidos = $lote->ingressos()->whereIn('status', ['A', 'R'])->count();
+        $disponivel = $lote->quantidadeTotal - $vendidos;
+
+        if ($disponivel <= 0) {
+            IngressoCarrinho::where('idCarrinho', $carrinho->idCarrinho)
+                ->where('idLote', $item->idLote)
+                ->delete();
+
+            $removedItems[] = $lote->nomeLote;
+            continue;
+        }
+
+        if ($itemQuantidade > $disponivel) {
+            return redirect()->route('carrinho.index')->with('error', 
+                "O lote '{$lote->nomeLote}' tem apenas {$disponivel} ingressos disponíveis no momento.");
+        }
+
+        $item->quantidade = $itemQuantidade;
+    }
+
+    if (!empty($removedItems)) {
+        $nomes = implode(', ', $removedItems);
+        return redirect()->route('carrinho.index')->with('error', 
+            "Itens removidos do carrinho: {$nomes}. Não há disponibilidade.");
+    }
+
+    $idsGerados = [];
+
+    DB::transaction(function () use ($itens, $carrinho, &$idsGerados) {
+        foreach ($itens as $item) {
+            for ($i = 0; $i < $item->quantidade; $i++) {
+                do {
+                    $codigo = random_int(100000000, 999999999);
+                } while (Ingresso::where('codigoUnico', $codigo)->exists());
+
+                $ingresso = Ingresso::create([
+                    'idLote' => $item->idLote,
+                    'codigoUnico' => $codigo,
+                    'status' => 'R',
+                ]);
+                $idsGerados[] = $ingresso->idIngresso;
+            }
+        }
+
+        IngressoCarrinho::where('idCarrinho', $carrinho->idCarrinho)->delete();
+    });
+
+    $ingressoIds = implode(',', $idsGerados);
+    return redirect()->route('checkout.index', ['ingressos' => $ingressoIds]);
+}
 }

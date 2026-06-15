@@ -4,16 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Venda extends Model
 {
     protected $table = 'venda';
-
     protected $primaryKey = 'idVenda';
 
     protected $fillable = [
         'idCliente',
-        'idIngresso',
         'quantidadeVenda',
         'dataCompra',
         'formaPagamento',
@@ -21,19 +20,19 @@ class Venda extends Model
     ];
 
     protected $casts = [
-        'dataCompra' => 'date',
+        'dataCompra' => 'datetime',
         'valorTotal' => 'decimal:2',
     ];
 
-    // Relacionamento com Cliente
     public function cliente(): BelongsTo
     {
-        return $this->belongsTo(Cliente::class, 'idCliente');
+        return $this->belongsTo(Cliente::class, 'idCliente', 'idCliente');
     }
 
-    // Relacionamento com Ingresso
-    public function ingresso(): BelongsTo
+    public function ingressos(): BelongsToMany
     {
-        return $this->belongsTo(Ingresso::class, 'idIngresso');
+        return $this->belongsToMany(Ingresso::class, 'ingresso_venda', 'idVenda', 'idIngresso')
+                    ->withPivot('quantidade', 'valorUnitario')
+                    ->withTimestamps();
     }
 }

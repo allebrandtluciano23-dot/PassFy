@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CarteiraDigital;
 use App\Models\Ingresso;
+use App\Models\Venda;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -52,7 +53,8 @@ class CheckoutController extends Controller
 
         $carteiraSaldo = 0;
         if ($cliente = Auth::guard('cliente')->user()) {
-            $carteiraSaldo = $cliente->carteiraDigital?->saldo ?? 0;
+            $carteira = CarteiraDigital::where('idCliente', $cliente->idCliente)->first();
+            $carteiraSaldo = $carteira?->saldo ?? 0;
         }
 
         return view('ingressos.checkout', [
@@ -63,7 +65,7 @@ class CheckoutController extends Controller
         ]);
     }
 
-    public function pagar(Request $request)
+public function pagar(Request $request)
     {
         $request->validate([
             'forma_pagamento' => 'required|in:cartao,pix,carteira',
@@ -72,47 +74,77 @@ class CheckoutController extends Controller
 
         $ids = array_filter(array_map('intval', explode(',', $request->input('ingressos'))));
         if (empty($ids)) {
-            return redirect()->route('carrinho.index')->with('error', 'Nenhum ingresso selecionado para pagamento.');
+            return response()->json(['success' => false, 'message' => 'Nenhum ingresso selecionado.'], 422);
         }
 
-        $ingressos = Ingresso::whereIn('idIngresso', $ids)
+        $ingressos = Ingresso::with('lote')
+            ->whereIn('idIngresso', $ids)
             ->where('status', 'R')
             ->get();
 
         if ($ingressos->count() !== count($ids)) {
-            return redirect()->route('carrinho.index')->with('error', 'Ingressos inválidos ou não reservados.');
+            return response()->json(['success' => false, 'message' => 'Ingressos inválidos ou não reservados.'], 422);
         }
 
+        $cliente = Auth::guard('cliente')->user();
         $total = $ingressos->sum(function ($item) {
             return $item->lote->valorIngresso;
         });
 
-        if ($request->input('forma_pagamento') === 'carteira') {
-            $cliente = Auth::guard('cliente')->user();
-            $carteira = CarteiraDigital::firstOrCreate([
-                'idCliente' => $cliente->idCliente,
-            ], ['saldo' => 0.00]);
+        DB::beginTransaction();
 
-            if ($carteira->saldo < $total) {
-                return redirect()->back()->with('error', 'Saldo insuficiente na carteira digital.');
-            }
+        try {
+            if ($request->input('forma_pagamento') === 'carteira') {
+                $carteira = CarteiraDigital::firstOrCreate(
+                    ['idCliente' => $cliente->idCliente],
+                    ['saldo' => 0.00]
+                );
 
-            DB::transaction(function () use ($ingressos, $carteira, $total) {
+                if ($carteira->saldo < $total) {
+                    return response()->json(['success' => false, 'message' => 'Saldo insuficiente na carteira digital.'], 422);
+                }
+
                 $carteira->saldo -= $total;
                 $carteira->save();
+            }
 
-                foreach ($ingressos as $ingresso) {
-                    $ingresso->status = 'A';
-                    $ingresso->save();
-                }
-            });
-        } else {
+            // Criar registro de VENDA
+            $venda = Venda::create([
+                'idCliente' => $cliente->idCliente,
+                'quantidadeVenda' => $ingressos->count(),
+                'dataCompra' => now(),
+                'formaPagamento' => $request->input('forma_pagamento'),
+                'valorTotal' => $total,
+            ]);
+
             foreach ($ingressos as $ingresso) {
                 $ingresso->status = 'A';
                 $ingresso->save();
-            }
-        }
 
-        return redirect()->route('meus.ingressos')->with('success', 'Pagamento simulado com sucesso!');
+                DB::table('ingresso_venda')->insert([
+                    'idIngresso' => $ingresso->idIngresso,
+                    'idVenda' => $venda->idVenda,
+                    'quantidade' => 1,
+                    'valorUnitario' => $ingresso->lote->valorIngresso,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'redirect' => route('meus.ingressos'),
+                'message' => 'Pagamento realizado com sucesso!'
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao processar pagamento: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

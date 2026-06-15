@@ -15,7 +15,6 @@ return new class extends Migration
         $table->id('idVenda');
 
         $table->unsignedBigInteger('idCliente');
-        $table->unsignedBigInteger('idIngresso');
 
         $table->integer('quantidadeVenda');
         $table->date('dataCompra');
@@ -27,10 +26,6 @@ return new class extends Migration
         $table->foreign('idCliente')
               ->references('idCliente')
               ->on('cliente');
-
-        $table->foreign('idIngresso')
-              ->references('idIngresso')
-              ->on('ingresso');
     });
 }
 
