@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Evento;
-use App\Models\Carteira;
+use App\Models\CarteiraDigital;
 use App\Models\Pedido;
 use App\Models\Cidade;
 use App\Models\Lote;
@@ -354,22 +354,29 @@ class EventoController extends Controller
             
             // Buscar todos os ingressos ativos/reservados deste evento
             $ingressos = Ingresso::whereHas('lote', function($q) use ($evento) {
-                $q->where('idLote', $evento->idEvento);
+                $q->where('idEvento', $evento->idEvento);
             })->whereIn('status', ['A', 'R'])->get();
-            
-            // Reembolsar cada ingresso
-            foreach ($ingressos as $ingresso) {
-                // Buscar o pedido relacionado
-                $pedido = $ingresso->pedido;
-                if ($pedido && $pedido->idCliente) {
-                    // Adicionar valor à carteira do cliente
-                    $carteira = Carteira::firstOrCreate(['idCliente' => $pedido->idCliente]);
-                    $carteira->saldo += $ingresso->valorIngresso;
-                    $carteira->save();
+
+            // Reembolsar cada ingresso vendido (status 'A')
+            $ingressosVendidos = $ingressos->where('status', 'A');
+            foreach ($ingressosVendidos as $ingresso) {
+                $vendaIngresso = \App\Models\IngressoVenda::where('idIngresso', $ingresso->idIngresso)->first();
+                if ($vendaIngresso) {
+                    $venda = \App\Models\Venda::find($vendaIngresso->idVenda);
+                    if ($venda && $venda->idCliente) {
+                        $carteira = CarteiraDigital::firstOrCreate(
+                            ['idCliente' => $venda->idCliente],
+                            ['saldo' => 0.00]
+                        );
+                        $carteira->saldo += $vendaIngresso->valorUnitario;
+                        $carteira->save();
+                    }
                 }
-                
-                // Cancelar ingresso
-                $ingresso->statusIngresso = 'C';
+            }
+
+            // Cancelar todos os ingressos
+            foreach ($ingressos as $ingresso) {
+                $ingresso->status = 'C';
                 $ingresso->save();
             }
             

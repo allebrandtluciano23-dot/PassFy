@@ -268,8 +268,17 @@ class CarrinhoController extends Controller
 
     $idsGerados = [];
 
+    try {
     DB::transaction(function () use ($itens, $carrinho, &$idsGerados) {
         foreach ($itens as $item) {
+            $lote = Lote::lockForUpdate()->find($item->idLote);
+            $vendidos = $lote->ingressos()->whereIn('status', ['A', 'R'])->count();
+            $disponivel = $lote->quantidadeTotal - $vendidos;
+
+            if ($item->quantidade > $disponivel) {
+                throw new \Exception("O lote '{$lote->nomeLote}' não tem ingressos suficientes disponíveis.");
+            }
+
             for ($i = 0; $i < $item->quantidade; $i++) {
                 do {
                     $codigo = random_int(100000000, 999999999);
@@ -286,6 +295,9 @@ class CarrinhoController extends Controller
 
         IngressoCarrinho::where('idCarrinho', $carrinho->idCarrinho)->delete();
     });
+    } catch (\Exception $e) {
+        return redirect()->route('carrinho.index')->with('error', $e->getMessage());
+    }
 
     $ingressoIds = implode(',', $idsGerados);
     return redirect()->route('checkout.index', ['ingressos' => $ingressoIds]);

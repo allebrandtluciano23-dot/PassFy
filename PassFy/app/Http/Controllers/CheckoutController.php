@@ -87,6 +87,10 @@ public function pagar(Request $request)
         }
 
         $cliente = Auth::guard('cliente')->user();
+        if (!$cliente) {
+            return response()->json(['success' => false, 'message' => 'Você precisa estar logado para realizar o pagamento.'], 401);
+        }
+
         $total = $ingressos->sum(function ($item) {
             return $item->lote->valorIngresso;
         });
